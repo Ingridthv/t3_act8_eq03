@@ -167,7 +167,7 @@ export default function LoginPage() {
           </form>
 
           <p className="login__demo">
-            Prueba con usuario Ingrid / ingridpass.{' '}
+            Prueba con usuario emilys / emilyspass.{' '}
             <button type="button" className="link-button" onClick={useDemoCredentials}>
               llenar datos
             </button>
