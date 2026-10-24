@@ -17,7 +17,7 @@ Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 - DiceBear: foto de los alumnos creados desde la app.
 
 ## Proyecto desplegado
-http://IP_DE_SU_VPS/t3_act8_eq03
+
 
 ## Ejecutar
 ```bash
