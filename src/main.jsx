@@ -6,7 +6,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import './index.css';
 
 // HashRouter: las rutas viven después del # (por ejemplo /#/alumnos?page=2&limit=20),
-// así que funciona en Nginx dentro de /t3_act8_eqXX/ sin configurar redirecciones.
+// así que funciona en Nginx dentro de /t3_act8_eq03/ sin configurar redirecciones.
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>

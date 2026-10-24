@@ -1,4 +1,4 @@
-# t3_act8_eqXX — Control Alumnos
+# t3_act8_eq03 — Control Alumnos
 
 Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 
@@ -17,7 +17,7 @@ Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 - DiceBear: foto de los alumnos creados desde la app.
 
 ## Proyecto desplegado
-http://IP_DE_SU_VPS/t3_act8_eqXX
+http://IP_DE_SU_VPS/t3_act8_eq03
 
 ## Ejecutar
 ```bash
@@ -27,11 +27,11 @@ npm run build    # producción (carpeta dist/)
 ```
 
 ## Despliegue en el VPS
-1. En `vite.config.js` cambia `base` a `'/t3_act8_eqXX/'` con su número de equipo real.
+1. En `vite.config.js` cambia `base` a `'/t3_act8_eq03/'` con su número de equipo real.
 2. `npm run build`
-3. Sube el **contenido** de `dist/` a la carpeta que sirve Nginx, por ejemplo `/var/www/html/t3_act8_eqXX/`:
-   `scp -r dist/* usuario@IP_DE_SU_VPS:/var/www/html/t3_act8_eqXX/`
-4. Abre `http://IP_DE_SU_VPS/t3_act8_eqXX/` y prueba.
+3. Sube el **contenido** de `dist/` a la carpeta que sirve Nginx, por ejemplo `/var/www/html/t3_act8_eq03/`:
+   `scp -r dist/* usuario@IP_DE_SU_VPS:/var/www/html/t3_act8_eq03/`
+4. Abre `http://IP_DE_SU_VPS/t3_act8_eq03/` y prueba.
 
 ## Estructura
 ```
