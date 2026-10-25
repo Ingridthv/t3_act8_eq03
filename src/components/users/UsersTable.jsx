@@ -4,16 +4,16 @@ import { Pencil, Trash2 } from 'lucide-react';
 import Avatar from '../ui/Avatar.jsx';
 import { getFullName, getInitials } from '../../utils/users.js';
 
-// Cantidad de fotografias disponibles por grupo
+// Cantidad de fotografias disponibles por grupo.
 const PHOTOS_PER_GROUP = 100;
 
-// Componente para mostrar la fotografia del alumno
+// Componente para mostrar la fotografia del alumno.
 function StudentPhoto({ user }) {
   const [imageError, setImageError] = useState(false);
 
   const fullName = getFullName(user);
 
-  // Utilizar el ID para asignar una fotografia estable
+  // Utilizar el ID para asignar una fotografia estable.
   const studentId = Number(user.id);
 
   // El genero de demostracion se asigna en users.js
