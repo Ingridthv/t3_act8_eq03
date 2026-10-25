@@ -6,6 +6,12 @@ Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 - Arcadio Aparicio Ingrid
 - Hernandez Guzman Concepción Escarleth
 
+## Descripción del proyecto
+```
+En esta actividad realizamos un sistema de control de alumnos utilizando React y Vite, tomando como referencia el mockup de Figma de la Actividad 7.
+
+El sistema permite consultar la información de los alumnos, realizar búsquedas, aplicar filtros y administrar sus datos mediante las opciones de agregar, editar y eliminar.
+```
 ## API de la tabla de datos
 **DummyJSON usuarios** (`https://dummyjson.com/users`), usados como alumnos.
 
@@ -42,4 +48,22 @@ src/
   pages/       LoginPage · DashboardPage · UsersPage
   services/    api.js · validation.js
   utils/
+```
+
+## Fotografías de los alumnos
+```
+Para mostrar las fotografías utilizamos Random User.
+
+https://randomuser.me/
+
+Este servicio proporciona fotografías reales de demostración. En nuestro código utilizamos el ID de cada alumno para asignarle una imagen diferente y seleccionar fotografías de hombres o mujeres.
+
+Las imágenes se cargan directamente desde internet y, si alguna no se puede mostrar, aparecen las iniciales del alumno.
+```
+
+## Paginación
+```
+La tabla muestra 10 alumnos por página. Como trabajamos con 100 alumnos inicialmente, tenemos 10 páginas.
+
+Agregamos botones para avanzar, regresar y seleccionar una página.
 ```

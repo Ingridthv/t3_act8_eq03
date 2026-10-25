@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from 'react';
 import {
   createUserRequest,
@@ -5,7 +6,7 @@ import {
   fetchAllUsers,
   updateUserRequest,
 } from '../services/api.js';
-import { enrichUser, formToUserPayload, getAvatarUrl } from '../utils/users.js';
+import { enrichUser, formToUserPayload } from '../utils/users.js';
 
 // DummyJSON solo SIMULA las escrituras. Por eso cada acción:
 //  1) hace la petición real a la API (para ver su respuesta) y
@@ -21,8 +22,11 @@ export function useUsersStore() {
     setLoading(true);
     setError('');
     try {
+      // Obtener los alumnos desde la API
       const data = await fetchAllUsers(signal);
-      setUsers(data.map(enrichUser));
+      // Mostrar solamente los primeros 100 alumnos
+      setUsers(data.slice(0, 100).map(enrichUser));
+      
     } catch (err) {
       if (err.name === 'AbortError') return;
       setError(err.message || 'No se pudieron cargar los alumnos.');
@@ -45,37 +49,59 @@ export function useUsersStore() {
     console.log('[POST /users/add] respuesta de la API:', apiResponse);
 
     setUsers((current) => {
-      const nextId = current.reduce((max, user) => Math.max(max, user.id), 0) + 1;
-      const fullName = `${payload.firstName} ${payload.lastName}`;
+      const nextId = current.reduce(
+        (max, user) => Math.max(max, user.id),
+        0
+      ) + 1;
+
       const enrollment = `2516${String(nextId).padStart(4, '0')}`;
+
       return [
-        { ...payload, id: nextId, enrollment, image: getAvatarUrl(fullName), isLocal: true },
+        {
+          ...payload,
+          id: nextId,
+          enrollment,
+          isLocal: true,
+        },
         ...current,
       ];
     });
+
     return apiResponse;
   };
 
   const editUser = async (user, values) => {
     const payload = formToUserPayload(values);
     let apiResponse = null;
+
     if (!user.isLocal) {
       apiResponse = await updateUserRequest(user.id, payload);
       console.log(`[PUT /users/${user.id}] respuesta de la API:`, apiResponse);
     }
+
     setUsers((current) =>
-      current.map((item) => (item.id === user.id ? { ...item, ...payload } : item))
+      current.map((item) =>
+        item.id === user.id
+          ? { ...item, ...payload }
+          : item
+      )
     );
+
     return apiResponse;
   };
 
   const removeUser = async (user) => {
     let apiResponse = null;
+
     if (!user.isLocal) {
       apiResponse = await deleteUserRequest(user.id);
       console.log(`[DELETE /users/${user.id}] respuesta de la API:`, apiResponse);
     }
-    setUsers((current) => current.filter((item) => item.id !== user.id));
+
+    setUsers((current) =>
+      current.filter((item) => item.id !== user.id)
+    );
+
     return apiResponse;
   };
 
