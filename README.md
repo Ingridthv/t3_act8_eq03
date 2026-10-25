@@ -1,5 +1,5 @@
 # t3_act8_eq03 — Control Alumnos
-## Programacion Web  09:00-10:00 am
+## Programacion Web  09:00-10:00 am!
 
 Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 
