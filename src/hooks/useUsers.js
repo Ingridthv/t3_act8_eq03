@@ -24,7 +24,7 @@ export function useUsersStore() {
     try {
       // Obtener los alumnos desde la API
       const data = await fetchAllUsers(signal);
-      // Mostrar solamente los primeros 100 alumnos
+      // Mostrar solamente los primeros 100 alumnos(limite).
       setUsers(data.slice(0, 100).map(enrichUser));
       
     } catch (err) {
