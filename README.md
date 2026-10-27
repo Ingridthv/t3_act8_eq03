@@ -24,6 +24,8 @@ El sistema permite consultar la información de los alumnos, realizar búsquedas
 
 ## Proyecto desplegado
 
+http://179.197.82.130/t3_act8_eq03/
+
 
 ## Ejecutar
 ```bash
