@@ -69,6 +69,8 @@ npm run build    # producción (carpeta dist/)
    `scp -r dist/* root@179.197.82.130:/var/www/html/t3_act8_eq03/`
 4. Se abre `http://179.197.82.130/t3_act8_eq03/`.
 
+
+### Interfaces Figma
 ### Login
 ![Pantalla de Login](public/login1.png)
 
