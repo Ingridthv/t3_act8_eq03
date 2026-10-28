@@ -35,6 +35,21 @@ Lo que incluye:
 
 ## APIs de validación y complementarias
 - **DummyJSON** `/auth/login`: inicio de sesión.
+
+Utilizamos esta API para manejar los datos de los alumnos y realizar las operaciones principales del sistema.
+
+POST /auth/login: Permite iniciar sesión en el sistema.
+
+GET /users/filter?key=email: Busca al usuario mediante su correo antes de iniciar sesión.
+
+GET /users?limit=0: Obtiene los datos de los alumnos para mostrarlos en la tabla.
+
+POST /users/add: Permite agregar un nuevo alumno.
+
+PUT /users/{id}: Permite modificar los datos de un alumno.
+
+DELETE /users/{id}: Permite eliminar un alumno.
+
 - **Disify:** verifica que el correo sea válido y no desechable (formulario de alumnos).
 - **Zippopotam.us:** del código postal obtiene el estado.
 - **Have I Been Pwned (Pwned Passwords):** avisa si la contraseña apareció en filtraciones.
@@ -94,17 +109,6 @@ src/
   pages/       LoginPage · DashboardPage · UsersPage
   services/    api.js · validation.js
   utils/
-```
-
-## Fotografías de los alumnos
-```
-Para mostrar las fotografías utilizamos Random User.
-
-https://randomuser.me/
-
-Este servicio proporciona fotografías reales de demostración. En nuestro código utilizamos el ID de cada alumno para asignarle una imagen diferente y seleccionar fotografías de hombres o mujeres.
-
-Las imágenes se cargan directamente desde internet y, si alguna no se puede mostrar, aparecen las iniciales del alumno.
 ```
 
 ## Paginación
