@@ -49,7 +49,7 @@ POST /users/add: Permite agregar un nuevo alumno.
 PUT /users/{id}: Permite modificar los datos de un alumno.
 
 DELETE /users/{id}: Permite eliminar un alumno.
-
+ 
 - **Disify:** verifica que el correo sea válido y no desechable (formulario de alumnos).
 - **Zippopotam.us:** del código postal obtiene el estado.
 - **Have I Been Pwned (Pwned Passwords):** avisa si la contraseña apareció en filtraciones.
