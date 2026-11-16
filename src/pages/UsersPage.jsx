@@ -18,6 +18,7 @@ import { useUsers } from '../context/UsersContext.jsx';
 import {
   EMPTY_USER_FORM,
   getFullName,
+  getIngreso,
   userToForm,
 } from '../utils/users.js';
 
@@ -52,6 +53,7 @@ export default function UsersPage() {
   const career = searchParams.get('career') ?? '';
   const semester = searchParams.get('semester') ?? '';
   const status = searchParams.get('status') ?? '';
+  const ingreso = searchParams.get('ingreso') ?? '';
 
   // PAGINACION: siempre 10 alumnos
   const limit = USERS_PER_PAGE;
@@ -97,10 +99,11 @@ export default function UsersPage() {
         matchesText &&
         (!career || user.career === career) &&
         (!semester || String(user.semester) === semester) &&
-        (!status || user.status === status)
+        (!status || user.status === status) &&
+        (!ingreso || String(getIngreso(user)) === ingreso)
       );
     });
-  }, [users, search, career, semester, status]);
+  }, [users, search, career, semester, status, ingreso]);
 
   // CALCULAR PAGINAS
   const totalPages = Math.max(
@@ -137,6 +140,7 @@ export default function UsersPage() {
       career: '',
       semester: '',
       status: '',
+      ingreso: '',
       page: 1,
     });
   };
@@ -323,14 +327,6 @@ export default function UsersPage() {
             Lista de alumnos
           </h2>
 
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={openCreate}
-            disabled={loading || Boolean(error)}
-          >
-            + Nuevo alumno
-          </button>
         </header>
 
         {loading && (
@@ -351,6 +347,7 @@ export default function UsersPage() {
               career={career}
               semester={semester}
               status={status}
+              ingreso={ingreso}
               onSearchChange={handleSearchChange}
               onFilterChange={handleFilterChange}
               onClear={handleClearFilters}

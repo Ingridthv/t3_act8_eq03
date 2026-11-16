@@ -48,26 +48,13 @@ export function useUsersStore() {
     const apiResponse = await createUserRequest(payload);
     console.log('[POST /users/add] respuesta de la API:', apiResponse);
 
-    setUsers((current) => {
-      const nextId = current.reduce(
-        (max, user) => Math.max(max, user.id),
-        0
-      ) + 1;
+    const nextId = users.reduce((max, user) => Math.max(max, user.id), 0) + 1;
+    // La matrícula puede venir del formulario de inscripción; si no, se genera.
+    const enrollment = values.enrollment || `2516${String(nextId).padStart(4, '0')}`;
+    const created = { ...payload, id: nextId, enrollment, isLocal: true };
 
-      const enrollment = `2516${String(nextId).padStart(4, '0')}`;
-
-      return [
-        {
-          ...payload,
-          id: nextId,
-          enrollment,
-          isLocal: true,
-        },
-        ...current,
-      ];
-    });
-
-    return apiResponse;
+    setUsers((current) => [created, ...current]);
+    return created;
   };
 
   const editUser = async (user, values) => {

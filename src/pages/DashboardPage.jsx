@@ -30,11 +30,12 @@ export default function DashboardPage() {
   const goToAction = (action, user) => navigate(`/alumnos?${action}=${user.id}`);
 
   const stats = useMemo(() => {
-    const totalAverage = users.reduce((sum, user) => sum + Number(user.average), 0);
+    const graded = users.filter((user) => Number(user.average) > 0);
+    const totalAverage = graded.reduce((sum, user) => sum + Number(user.average), 0);
     return {
       total: users.length,
       active: users.filter((user) => user.status === 'Activo').length,
-      average: users.length ? (totalAverage / users.length).toFixed(1) : '0',
+      average: graded.length ? (totalAverage / graded.length).toFixed(1) : '0',
     };
   }, [users]);
 

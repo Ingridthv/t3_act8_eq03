@@ -27,9 +27,9 @@ export default function Pagination({
   totalPages,
   totalItems,
   onPageChange,
+  limit = 10,
+  noun = 'alumnos',
 }) {
-  // Mostrar siempre 10 alumnos por pagina
-  const limit = 10;
 
   const firstItem =
     totalItems === 0 ? 0 : (page - 1) * limit + 1;
@@ -45,14 +45,14 @@ export default function Pagination({
       {/* Informacion de los registros */}
       <div className="pagination__info">
         <span className="pagination__summary">
-          Mostrando {firstItem}–{lastItem} de {totalItems} alumnos
+          Mostrando {firstItem}–{lastItem} de {totalItems} {noun}
         </span>
       </div>
 
       {/* Botones de paginacion */}
       <nav
         className="pagination__pages"
-        aria-label="Paginación de alumnos"
+        aria-label={`Paginación de ${noun}`}
       >
 
         {/* Pagina anterior */}

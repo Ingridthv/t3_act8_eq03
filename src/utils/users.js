@@ -15,6 +15,9 @@ export const CAREERS = [
 export const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const STATUSES = ['Activo', 'Baja'];
 
+// Año de ingreso: los 2 primeros dígitos de la matrícula (20 -> 2020).
+export const getIngreso = (user) => 2000 + Number(String(user.enrollment).slice(0, 2));
+
 export const getFullName = (user) =>
   `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
 

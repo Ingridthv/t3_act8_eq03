@@ -1,4 +1,5 @@
 import { ChevronDown, Search } from 'lucide-react';
+import { INGRESOS } from '../../utils/academico.js';
 import { CAREERS, SEMESTERS, STATUSES } from '../../utils/users.js';
 
 function FilterSelect({ label, name, value, options, onChange }) {
@@ -27,11 +28,12 @@ export default function UsersFilters({
   career,
   semester,
   status,
+  ingreso,
   onSearchChange,
   onFilterChange,
   onClear,
 }) {
-  const hasFilters = Boolean(search || career || semester || status);
+  const hasFilters = Boolean(search || career || semester || status || ingreso);
 
   return (
     <div className="filters">
@@ -48,6 +50,7 @@ export default function UsersFilters({
       </label>
       <FilterSelect label="Carrera" name="career" value={career} options={CAREERS} onChange={onFilterChange} />
       <FilterSelect label="Semestre" name="semester" value={semester} options={SEMESTERS} onChange={onFilterChange} />
+      <FilterSelect label="Año" name="ingreso" value={ingreso} options={INGRESOS} onChange={onFilterChange} />
       <FilterSelect label="Estatus" name="status" value={status} options={STATUSES} onChange={onFilterChange} />
       <button type="button" className="btn btn--secondary btn--sm" onClick={onClear} disabled={!hasFilters}>
         Limpiar

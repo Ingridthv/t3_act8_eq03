@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout.jsx';
 import { PublicOnly, RequireAuth } from './components/layout/RouteGuards.jsx';
+import ConfiguracionPage from './pages/ConfiguracionPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import PlaceholderPage from './pages/PlaceholderPage.jsx';
+import EntityPage from './pages/EntityPage.jsx';
+import ReportesPage from './pages/ReportesPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 
 export default function App() {
@@ -27,10 +29,15 @@ export default function App() {
       >
         <Route path="/inicio" element={<DashboardPage />} />
         <Route path="/alumnos" element={<UsersPage />} />
-        <Route path="/materias" element={<PlaceholderPage title="Materias" />} />
-        <Route path="/calificaciones" element={<PlaceholderPage title="Calificaciones" />} />
-        <Route path="/reportes" element={<PlaceholderPage title="Reportes" />} />
-        <Route path="/configuracion" element={<PlaceholderPage title="Configuración" />} />
+        <Route path="/inscripciones" element={<EntityPage key="inscripciones" entity="inscripciones" />} />
+        <Route path="/materias" element={<EntityPage key="materias" entity="materias" />} />
+        <Route path="/calificaciones" element={<EntityPage key="calificaciones" entity="calificaciones" />} />
+        <Route path="/periodos" element={<EntityPage key="periodos" entity="periodos" />} />
+        <Route path="/reportes" element={<ReportesPage />} />
+        <Route path="/carreras" element={<EntityPage key="carreras" entity="carreras" />} />
+        <Route path="/docentes" element={<EntityPage key="docentes" entity="docentes" />} />
+        <Route path="/usuarios" element={<EntityPage key="usuarios" entity="usuarios" />} />
+        <Route path="/configuracion" element={<ConfiguracionPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/inicio" replace />} />
