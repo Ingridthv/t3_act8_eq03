@@ -42,27 +42,51 @@ async function request(path, options = {}) {
   return data;
 }
 
-/* ---------- Autenticación ---------- */
+/* ---------- Autenticación (backend Spring Boot + PostgreSQL) ---------- */
 
-export async function loginRequest({ username, password }) {
+// En local: http://localhost:8080/api. En el VPS se define VITE_API_URL al compilar.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+async function backendRequest(path, { token, ...options } = {}) {
+  let response;
   try {
-    return await request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password, expiresInMins: 30 }),
+    response = await fetch(`${API_URL}${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      ...options,
     });
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 400) {
-      throw new ApiError('Usuario o contraseña incorrectos.', 400);
-    }
-    throw error;
+  } catch {
+    throw new ApiError('No se pudo conectar con el servidor. Inténtalo de nuevo en unos minutos.');
   }
+
+  let data = null;
+  if (response.status !== 204) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  }
+
+  if (!response.ok) {
+    // El backend responde siempre { status, error, message, errors? }
+    const fieldError = data?.errors ? Object.values(data.errors)[0] : null;
+    throw new ApiError(
+      fieldError || data?.message || `El servidor respondió con el error ${response.status}.`,
+      response.status
+    );
+  }
+  return data;
 }
 
-// El diseño pide "Correo institucional", pero DummyJSON inicia sesión con username.
-// Si el usuario escribe un correo, se busca su username en la API y luego se hace el login.
-export async function findUsernameByEmail(email) {
-  const data = await request(`/users/filter?key=email&value=${encodeURIComponent(email)}&select=username`);
-  return data.users?.[0]?.username ?? null;
+export function loginRequest({ correo, password }) {
+  return backendRequest('/auth/login', { method: 'POST', body: JSON.stringify({ correo, password }) });
+}
+
+export function logoutRequest(token) {
+  return backendRequest('/auth/logout', { method: 'POST', token });
 }
 
 /* ---------- Alumnos (usuarios de DummyJSON) ---------- */

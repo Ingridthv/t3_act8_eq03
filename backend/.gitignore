@@ -1,0 +1,6 @@
+target/
+# Configuración real con contraseñas: NO se sube. Se copia desde application.properties.example
+src/main/resources/application.properties
+*.local.properties
+.idea/
+*.iml

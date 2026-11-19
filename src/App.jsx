@@ -1,11 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout.jsx';
-import { PublicOnly, RequireAuth } from './components/layout/RouteGuards.jsx';
+import { PublicOnly, RequireAuth, RequireRole } from './components/layout/RouteGuards.jsx';
 import ConfiguracionPage from './pages/ConfiguracionPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import EntityPage from './pages/EntityPage.jsx';
 import ReportesPage from './pages/ReportesPage.jsx';
+import RolHomePage from './pages/RolHomePage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 
 export default function App() {
@@ -23,7 +24,9 @@ export default function App() {
       <Route
         element={
           <RequireAuth>
-            <AppLayout />
+            <RequireRole role="administrador">
+              <AppLayout />
+            </RequireRole>
           </RequireAuth>
         }
       >
@@ -39,6 +42,27 @@ export default function App() {
         <Route path="/usuarios" element={<EntityPage key="usuarios" entity="usuarios" />} />
         <Route path="/configuracion" element={<ConfiguracionPage />} />
       </Route>
+
+      <Route
+        path="/docente/inicio"
+        element={
+          <RequireAuth>
+            <RequireRole role="docente">
+              <RolHomePage rol="docente" />
+            </RequireRole>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/estudiante/inicio"
+        element={
+          <RequireAuth>
+            <RequireRole role="estudiante">
+              <RolHomePage rol="estudiante" />
+            </RequireRole>
+          </RequireAuth>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/inicio" replace />} />
     </Routes>

@@ -74,13 +74,13 @@ export default function ConfiguracionPage() {
     setBusy(true);
     setNotice(null);
     try {
-      // La contraseña actual se comprueba con la API de login. DummyJSON no permite
-      // cambiar contraseñas, así que el cambio en sí se simula (el backend real lo hará).
-      await loginRequest({ username: user.username, password: values.actual });
+      // La contraseña actual se comprueba contra el backend. El cambio en sí se conecta
+      // con el endpoint de cambio de contraseña en el siguiente avance del backend.
+      await loginRequest({ correo: user.email, password: values.actual });
       setValues(EMPTY);
       setNotice({ type: 'success', text: 'Contraseña actualizada correctamente.' });
     } catch (err) {
-      if (err.status === 400) setErrors({ actual: 'La contraseña actual es incorrecta.' });
+      if (err.status === 401) setErrors({ actual: 'La contraseña actual es incorrecta.' });
       else setNotice({ type: 'error', text: err.message || 'No se pudo actualizar la contraseña.' });
     } finally {
       setBusy(false);

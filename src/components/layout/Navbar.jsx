@@ -10,8 +10,9 @@ const ADMIN_NAME = 'Concepción Escarleth';
 const ADMIN_ROLE = 'Administradora';
 
 export default function Navbar({ title, user, onLogout }) {
+  const isAdmin = user.role === 'administrador';
   const fullName =
-    ADMIN_NAME || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username;
+    (isAdmin && ADMIN_NAME) || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username;
   const initials = fullName
     .split(' ')
     .slice(0, 2)
@@ -27,10 +28,10 @@ export default function Navbar({ title, user, onLogout }) {
         <button type="button" className="icon-circle" aria-label="Notificaciones">
           <Bell size={20} aria-hidden="true" />
         </button>
-        <Avatar src={ADMIN_PHOTO} fallbackSrc={user.image} initials={initials} size="md" alt={`Foto de ${fullName}`} />
+        <Avatar src={isAdmin ? ADMIN_PHOTO : undefined} fallbackSrc={user.image} initials={initials} size="md" alt={`Foto de ${fullName}`} />
         <div className="navbar__identity">
           <p className="navbar__name">{fullName}</p>
-          <p className="navbar__role">{ADMIN_ROLE || (user.gender === 'female' ? 'Administradora' : 'Administrador')}</p>
+          <p className="navbar__role">{isAdmin ? ADMIN_ROLE || 'Administrador' : user.role}</p>
         </div>
         <button type="button" className="btn btn--secondary btn--sm" onClick={onLogout}>
           Cerrar sesión

@@ -3,27 +3,23 @@ import { Eye, EyeOff, GraduationCap, Lock, Mail } from 'lucide-react';
 import Alert from '../components/ui/Alert.jsx';
 import { TextField } from '../components/ui/TextField.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { findUsernameByEmail } from '../services/api.js';
 import { checkPasswordBreach } from '../services/validation.js';
 
-const DEMO_CREDENTIALS = { username: 'emilys', password: 'emilyspass' };
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validateLogin({ username, password }) {
+function validateLogin({ correo, password }) {
   const errors = {};
-  const identifier = username.trim();
-  if (!identifier) errors.username = 'Ingresa tu usuario o correo.';
-  else if (identifier.includes('@') && !EMAIL_PATTERN.test(identifier)) errors.username = 'Escribe un correo válido, por ejemplo nombre@dominio.com.';
-  else if (identifier.length < 3) errors.username = 'Debe tener al menos 3 caracteres.';
+  const email = correo.trim();
+  if (!email) errors.correo = 'Ingresa tu correo institucional.';
+  else if (!EMAIL_PATTERN.test(email)) errors.correo = 'Escribe un correo válido, por ejemplo 20168978@escuela.edu.mx.';
 
   if (!password) errors.password = 'Ingresa tu contraseña.';
-  else if (password.length < 4) errors.password = 'La contraseña debe tener al menos 4 caracteres.';
   return errors;
 }
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [values, setValues] = useState({ username: '', password: '' });
+  const [values, setValues] = useState({ correo: '', password: '' });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [passwordWarning, setPasswordWarning] = useState('');
@@ -69,27 +65,12 @@ export default function LoginPage() {
     setSubmitting(true);
     setFormError('');
     try {
-      const identifier = values.username.trim();
-      // DummyJSON inicia sesión con username: si escribieron un correo, se busca su username.
-      const username = identifier.includes('@') ? await findUsernameByEmail(identifier) : identifier;
-      if (!username) {
-        setFormError('Usuario o contraseña incorrectos.');
-        setSubmitting(false);
-        return;
-      }
-      await login({ username, password: values.password });
-      // Al guardar el usuario en el estado, PublicOnly redirige al sistema.
+      await login({ correo: values.correo.trim(), password: values.password });
+      // Al guardar el usuario en el estado, PublicOnly lo manda al inicio de su rol.
     } catch (error) {
       setFormError(error.message);
       setSubmitting(false);
     }
-  };
-
-  const useDemoCredentials = () => {
-    setValues(DEMO_CREDENTIALS);
-    setErrors({});
-    setFormError('');
-    setPasswordWarning('');
   };
 
   return (
@@ -117,15 +98,15 @@ export default function LoginPage() {
             {formError && <Alert type="error">{formError}</Alert>}
 
             <TextField
-              label="Correo institucional o usuario"
-              name="username"
-              type="text"
+              label="Correo institucional"
+              name="correo"
+              type="email"
               icon={Mail}
-              value={values.username}
-              error={errors.username}
+              value={values.correo}
+              error={errors.correo}
               onChange={handleChange}
               onBlur={handleBlur}
-              placeholder="23160845@itoaxaca.edu.mx"
+              placeholder="20168978@escuela.edu.mx"
               autoComplete="username"
               autoFocus
             />
@@ -166,12 +147,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="login__demo">
-            Prueba con usuario emilys / emilyspass.{' '}
-            <button type="button" className="link-button" onClick={useDemoCredentials}>
-              llenar datos
-            </button>
-          </p>
         </div>
       </section>
     </div>

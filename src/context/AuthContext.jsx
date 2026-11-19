@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { loginRequest } from '../services/api.js';
+import { loginRequest, logoutRequest } from '../services/api.js';
 
 const SESSION_KEY = 'control-alumnos:session';
 const AuthContext = createContext(null);
@@ -14,19 +14,21 @@ function readStoredUser() {
 
 export function AuthProvider({ children }) {
   // El usuario autenticado vive en el estado de la app (useState).
-  // sessionStorage solo evita perder la sesión al recargar la pestaña.
+  // sessionStorage solo evita perder la sesión al recargar la pestaña (se borra al cerrarla).
   const [user, setUser] = useState(readStoredUser);
 
-  const login = async ({ username, password }) => {
-    const data = await loginRequest({ username, password });
+  const login = async ({ correo, password }) => {
+    const data = await loginRequest({ correo, password });
     const sessionUser = {
       id: data.id,
-      username: data.username,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      image: data.image,
-      gender: data.gender,
+      username: data.correo,
+      email: data.correo,
+      firstName: data.nombre,
+      lastName: '',
+      image: '',
+      role: data.rol, // administrador | docente | estudiante
+      token: data.token, // JWT: se manda en el encabezado Authorization
+      debeCambiarPassword: data.debeCambiarPassword,
     };
     setUser(sessionUser);
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
@@ -34,6 +36,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    // El backend guarda el token en tokens_invalidados para que ya no sirva.
+    if (user?.token) logoutRequest(user.token).catch(() => {});
     setUser(null);
     sessionStorage.removeItem(SESSION_KEY);
   };

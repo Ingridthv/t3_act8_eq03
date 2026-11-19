@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------
+# Copia este archivo como "application.properties" (en esta misma carpeta)
+# y llena tus datos. application.properties NO se sube a GitHub.
+# ---------------------------------------------------------------
+server.port=8080
+
+# PostgreSQL
+spring.datasource.url=jdbc:postgresql://localhost:5433/control_alumnos
+spring.datasource.username=TU_USUARIO
+spring.datasource.password=CONTRASENA_POSTGRES
+
+# Flyway crea las tablas y carga los datos de prueba (db/migration)
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.open-in-view=false
+
+# Evita la contraseña aleatoria que Spring Security imprime al arrancar
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
+# JWT: el secreto debe tener al menos 32 caracteres. Usa uno distinto en el VPS.
+app.jwt.secret=CAMBIA_ESTE_SECRETO_POR_UNA_CADENA_LARGA_Y_ALEATORIA_DE_32_O_MAS
+app.jwt.expiration-minutes=60
+
+# Origenes permitidos (frontend), separados por coma
+app.cors.allowed-origins=http://localhost:5173,https://t3act8eq03.tech

@@ -13,8 +13,13 @@ Mini sistema en React (Vite) basado en el mockup de Figma de la Actividad 7.
 
 **Respaldo en GitHub Pages:** https://ingridthv.github.io/t3_act8_eq03/
 
-**Usuario de prueba:** `emilys` · **Contraseña:** `emilyspass`
-(También funciona el correo `emily.johnson@x.dummyjson.com`).
+**Usuarios de prueba** (guardados en PostgreSQL, contraseña cifrada con BCrypt):
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@controlalumnos.edu.mx` | `Admin2026!` |
+| Docente | `samuel.ortiz@escuela.edu.mx` | `Docente2026!` |
+| Estudiante | `20168978@escuela.edu.mx` | `Alumno2026!` |
 
 ## Descripción del proyecto
 En esta actividad realizamos un sistema de control de alumnos utilizando React y Vite, tomando como referencia el mockup de Figma de la Actividad 7. Desarrollamos las tres pantallas principales del diseño: **Login**, **Inicio** y **Alumnos**.
@@ -22,7 +27,7 @@ En esta actividad realizamos un sistema de control de alumnos utilizando React y
 El sistema permite iniciar sesión con validaciones, consultar la información de los alumnos, realizar búsquedas, aplicar filtros y administrar sus datos mediante las opciones de agregar, editar y eliminar.
 
 Lo que incluye:
-- **Login:** validación de los campos antes de enviarlos (vacíos, formato de correo), mensajes de error claros y acceso mediante la API de DummyJSON. Los datos del usuario se guardan en el estado de la aplicación.
+- **Login:** validación de los campos antes de enviarlos (vacíos, formato de correo), mensajes de error claros y acceso mediante el backend (Spring Boot + JWT). Un solo login para los tres roles: según el rol que devuelve el backend, se redirige a su pantalla de inicio.
 - **Rutas protegidas:** si no se ha iniciado sesión no se puede ver el sistema; al cerrar sesión se regresa al login.
 - **Sidebar y Navbar:** menú lateral de navegación y barra superior con la foto, el nombre y el botón de "Cerrar sesión".
 - **Inicio:** resumen general con el total de alumnos, alumnos activos y promedio general, además de la lista de alumnos recientes.
@@ -34,22 +39,6 @@ Lo que incluye:
 **DummyJSON usuarios** (`https://dummyjson.com/users`), usados como alumnos. Como la API no incluye datos académicos, la matrícula, la carrera, el semestre, el promedio y el estatus se generan a partir del id de cada usuario.
 
 ## APIs de validación y complementarias
-- **DummyJSON** `/auth/login`: inicio de sesión.
-
-Utilizamos esta API para manejar los datos de los alumnos y realizar las operaciones principales del sistema.
-
-POST /auth/login: Permite iniciar sesión en el sistema.
-
-GET /users/filter?key=email: Busca al usuario mediante su correo antes de iniciar sesión.
-
-GET /users?limit=0: Obtiene los datos de los alumnos para mostrarlos en la tabla.
-
-POST /users/add: Permite agregar un nuevo alumno.
-
-PUT /users/{id}: Permite modificar los datos de un alumno.
-
-DELETE /users/{id}: Permite eliminar un alumno.
- 
 - **Disify:** verifica que el correo sea válido y no desechable (formulario de alumnos).
 - **Zippopotam.us:** del código postal obtiene el estado.
 - **Have I Been Pwned (Pwned Passwords):** avisa si la contraseña apareció en filtraciones.
@@ -109,11 +98,4 @@ src/
   pages/       LoginPage · DashboardPage · UsersPage
   services/    api.js · validation.js
   utils/
-```
-
-## Paginación
-```
-La tabla muestra 10 alumnos por página. Como trabajamos con 100 alumnos inicialmente, tenemos 10 páginas.
-
-Agregamos botones para avanzar, regresar y seleccionar una página.
 ```
