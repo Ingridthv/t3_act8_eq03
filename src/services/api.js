@@ -89,6 +89,18 @@ export function logoutRequest(token) {
   return backendRequest('/auth/logout', { method: 'POST', token });
 }
 
+export function changePasswordRequest(token, { actual, nueva }) {
+  return backendRequest('/auth/cambiar-password', { method: 'POST', token, body: JSON.stringify({ actual, nueva }) });
+}
+
+export function recoverPasswordRequest(correo) {
+  return backendRequest('/auth/recuperar', { method: 'POST', body: JSON.stringify({ correo }) });
+}
+
+export function resetPasswordRequest({ token, nueva }) {
+  return backendRequest('/auth/restablecer', { method: 'POST', body: JSON.stringify({ token, nueva }) });
+}
+
 /* ---------- Alumnos (usuarios de DummyJSON) ---------- */
 
 export async function fetchAllUsers(signal) {

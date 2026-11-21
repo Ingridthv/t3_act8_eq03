@@ -42,7 +42,16 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem(SESSION_KEY);
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  // Actualiza datos de la sesión (p. ej. debeCambiarPassword tras cambiar la contraseña)
+  const updateUser = (changes) => {
+    setUser((current) => {
+      const next = { ...current, ...changes };
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return <AuthContext.Provider value={{ user, login, logout, updateUser }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

@@ -31,6 +31,10 @@ public class Usuario {
     @JoinColumn(name = "rol_id")
     private Rol rol;
 
+    // Buzón real donde llegan los avisos; si está vacío se usa el correo institucional
+    @Column(name = "correo_contacto")
+    private String correoContacto;
+
     @Column(name = "alumno_id")
     private UUID alumnoId;
 
@@ -58,6 +62,15 @@ public class Usuario {
 
     public String getCorreo() {
         return correo;
+    }
+
+    public String getCorreoContacto() {
+        return correoContacto;
+    }
+
+    /** Dirección a la que se envían los correos de la cuenta. */
+    public String correoDeEnvio() {
+        return correoContacto != null && !correoContacto.isBlank() ? correoContacto : correo;
     }
 
     public String getPasswordHash() {
@@ -90,5 +103,13 @@ public class Usuario {
 
     public void setUltimoAcceso(Instant ultimoAcceso) {
         this.ultimoAcceso = ultimoAcceso;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setDebeCambiarPassword(boolean debeCambiarPassword) {
+        this.debeCambiarPassword = debeCambiarPassword;
     }
 }

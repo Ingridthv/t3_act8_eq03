@@ -11,7 +11,10 @@ export function homeFor(role) {
 // Protege el sistema: sin sesión en el estado, siempre se vuelve al login.
 export function RequireAuth({ children }) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  // Cuentas nuevas: antes de usar el sistema deben cambiar su contraseña temporal.
+  if (user.debeCambiarPassword) return <Navigate to="/cambiar-password" replace />;
+  return children;
 }
 
 // Cada rol solo entra a sus pantallas (el backend también lo valida con 403).

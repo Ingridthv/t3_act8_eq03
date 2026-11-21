@@ -50,6 +50,11 @@ public class GlobalExceptionHandler {
         return responder(HttpStatus.FORBIDDEN, mensaje, req, null);
     }
 
+    @ExceptionHandler(SolicitudInvalidaException.class)
+    public ResponseEntity<ApiError> solicitudInvalida(SolicitudInvalidaException ex, HttpServletRequest req) {
+        return responder(HttpStatus.BAD_REQUEST, ex.getMessage(), req, null);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiError> noEncontrado(NoResourceFoundException ex, HttpServletRequest req) {
         return responder(HttpStatus.NOT_FOUND, "El recurso solicitado no existe.", req, null);

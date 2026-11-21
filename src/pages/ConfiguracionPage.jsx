@@ -4,7 +4,7 @@ import Alert from '../components/ui/Alert.jsx';
 import Avatar from '../components/ui/Avatar.jsx';
 import { TextField } from '../components/ui/TextField.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { loginRequest } from '../services/api.js';
+import { changePasswordRequest } from '../services/api.js';
 
 const ADMIN_PHOTO = `${import.meta.env.BASE_URL}admin.png`;
 const EMPTY = { actual: '', nueva: '', confirmar: '' };
@@ -45,7 +45,7 @@ function PasswordField({ label, name, value, error, hint, show, onToggle, onChan
 }
 
 export default function ConfiguracionPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [visible, setVisible] = useState({});
@@ -74,13 +74,13 @@ export default function ConfiguracionPage() {
     setBusy(true);
     setNotice(null);
     try {
-      // La contraseña actual se comprueba contra el backend. El cambio en sí se conecta
-      // con el endpoint de cambio de contraseña en el siguiente avance del backend.
-      await loginRequest({ correo: user.email, password: values.actual });
+      // El backend verifica la contraseña actual, aplica las reglas y guarda el hash BCrypt.
+      await changePasswordRequest(user.token, { actual: values.actual, nueva: values.nueva });
+      updateUser({ debeCambiarPassword: false });
       setValues(EMPTY);
       setNotice({ type: 'success', text: 'Contraseña actualizada correctamente.' });
     } catch (err) {
-      if (err.status === 401) setErrors({ actual: 'La contraseña actual es incorrecta.' });
+      if (err.status === 400 && /actual no es correcta/.test(err.message)) setErrors({ actual: err.message });
       else setNotice({ type: 'error', text: err.message || 'No se pudo actualizar la contraseña.' });
     } finally {
       setBusy(false);

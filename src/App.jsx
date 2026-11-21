@@ -1,9 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout.jsx';
 import { PublicOnly, RequireAuth, RequireRole } from './components/layout/RouteGuards.jsx';
+import CambioObligatorioPage from './pages/CambioObligatorioPage.jsx';
 import ConfiguracionPage from './pages/ConfiguracionPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import RecuperarPage from './pages/RecuperarPage.jsx';
+import RestablecerPage from './pages/RestablecerPage.jsx';
 import EntityPage from './pages/EntityPage.jsx';
 import ReportesPage from './pages/ReportesPage.jsx';
 import RolHomePage from './pages/RolHomePage.jsx';
@@ -20,6 +23,10 @@ export default function App() {
           </PublicOnly>
         }
       />
+
+      <Route path="/recuperar" element={<PublicOnly><RecuperarPage /></PublicOnly>} />
+      <Route path="/cambiar-password" element={<CambioObligatorioPage />} />
+      <Route path="/restablecer" element={<RestablecerPage />} />
 
       <Route
         element={

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap, Lock, Mail } from 'lucide-react';
 import Alert from '../components/ui/Alert.jsx';
 import { TextField } from '../components/ui/TextField.jsx';
@@ -137,9 +138,9 @@ export default function LoginPage() {
             />
 
             <div className="login__link-row">
-              <button type="button" className="login__link">
+              <Link to="/recuperar" className="login__link">
                 ¿Olvidaste tu contraseña?
-              </button>
+              </Link>
             </div>
 
             <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
