@@ -217,7 +217,7 @@ export const ENTITIES = {
     ],
   },
 
-  carreras: {
+    carreras: {
     singular: 'carrera',
     title: 'Catálogo de carreras',
     noun: 'carreras',
@@ -229,6 +229,7 @@ export const ENTITIES = {
     search: ['clave', 'nombre'],
     rowLabel: (r) => r.nombre,
     unique: [['clave', 'Ya existe una carrera con esa clave.'], ['nombre', 'Ya existe una carrera con ese nombre.']],
+
     columns: [
       { key: 'clave', label: 'Clave' },
       { key: 'nombre', label: 'Carrera', strong: true },
@@ -236,12 +237,46 @@ export const ENTITIES = {
       { key: 'alumnos', label: 'Alumnos' },
       { key: 'coordinador', label: 'Coordinador' },
     ],
-    filters: [{ name: 'duracion', label: 'Duración', options: strings(['8 semestres', '9 semestres', '10 semestres']) }],
+
+    filters: [
+      {
+        name: 'duracion',
+        label: 'Duración',
+        options: strings(['8 semestres', '9 semestres', '10 semestres']),
+      },
+    ],
+
     fields: [
-      { name: 'clave', label: 'Clave', half: true, upper: true, placeholder: 'Ej. ISC', rules: { required: true, pattern: /^[A-Za-z]{2,4}$/, patternMsg: 'Usa de 2 a 4 letras.' }, requiredMsg: 'Escribe la clave.' },
-      { name: 'duracion', label: 'Duración', type: 'select', half: true, options: strings(['8 semestres', '9 semestres', '10 semestres']), placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona la duración.' },
-      { name: 'nombre', label: 'Nombre de la carrera', placeholder: 'Ej. Ing. en Sistemas', rules: { required: true, minLen: 5, maxLen: 60 }, requiredMsg: 'Escribe el nombre de la carrera.' },
-      { name: 'coordinador', label: 'Coordinador', type: 'select', options: 'docentes', placeholder: 'Selecciona un docente', rules: { required: true }, requiredMsg: 'Selecciona un coordinador.' },
+      {
+        name: 'clave',
+        label: 'Clave',
+        half: true,
+        upper: true,
+        placeholder: 'Ej. ISC',
+        rules: {
+          required: true,
+          pattern: /^[A-Za-z]{2,4}$/,
+          patternMsg: 'Usa de 2 a 4 letras.',
+        },
+        requiredMsg: 'Escribe la clave.',
+      },
+      {
+        name: 'duracion',
+        label: 'Duración',
+        type: 'select',
+        half: true,
+        options: strings(['8 semestres', '9 semestres', '10 semestres']),
+        placeholder: 'Selecciona',
+        rules: { required: true },
+        requiredMsg: 'Selecciona la duración.',
+      },
+      {
+        name: 'nombre',
+        label: 'Nombre de la carrera',
+        placeholder: 'Ej. Ing. en Sistemas',
+        rules: { required: true, minLen: 5, maxLen: 60 },
+        requiredMsg: 'Escribe el nombre de la carrera.',
+      },
     ],
   },
 
