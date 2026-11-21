@@ -30,13 +30,14 @@ public class CarreraAdminController {
         this.service = service;
     }
 
-    // ejemplo: GET /api/admin/carreras?page=0&size=10&q=sis&estado=activa
+         // ejemplo: GET /api/admin/carreras?page=0&size=10&q=sis&estado=activa&duracion=9
     @GetMapping
     public PageResponse<CarreraResponse> listar(
             @RequestParam(defaultValue = "") String q,
             @RequestParam(defaultValue = "") String estado,
+            @RequestParam(defaultValue = "0") int duracion,
             @PageableDefault(size = 10, sort = "nombre") Pageable pageable) {
-        return service.listar(q, estado, pageable);
+        return service.listar(q, estado, duracion, pageable);
     }
 
     @GetMapping("/{id}")

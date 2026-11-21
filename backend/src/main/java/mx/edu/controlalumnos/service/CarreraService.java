@@ -20,12 +20,12 @@ public class CarreraService {
         this.repo = repo;
     }
 
-    // lista una pagina de carreras. la busqueda y el filtro se hacen en la base de datos
+        // lista una pagina de carreras. la busqueda y los filtros se hacen en la base de datos
     @Transactional(readOnly = true)
-    public PageResponse<CarreraResponse> listar(String q, String estado, Pageable pageable) {
+    public PageResponse<CarreraResponse> listar(String q, String estado, int duracion, Pageable pageable) {
         boolean todas = estado == null || estado.isBlank();
         boolean activa = "activa".equalsIgnoreCase(estado);
-        return PageResponse.of(repo.buscar(q.trim(), todas, activa, pageable).map(this::aRespuesta));
+        return PageResponse.of(repo.buscar(q.trim(), todas, activa, duracion, pageable).map(this::aRespuesta));
     }
 
     @Transactional(readOnly = true)
@@ -78,16 +78,24 @@ public class CarreraService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("La carrera no existe."));
     }
 
-    // copia los datos del request a la entidad
+    
+    // Copia los datos del formulario a la carrera
     private void aplicar(Carrera c, CarreraRequest req, String clave, String nombre) {
         c.setClave(clave);
         c.setNombre(nombre);
         c.setDuracionSemestres(req.duracionSemestres());
-        c.setCoordinadorId(req.coordinadorId());
+
+        // Solo cambia el coordinador si viene en la petición
+        if (req.coordinadorId() != null) {
+            c.setCoordinadorId(req.coordinadorId());
+        }
+
+        // Solo cambia el estado si viene en la petición
         if (req.activa() != null) {
             c.setActiva(req.activa());
         }
     }
+
 
     // convierte la entidad en el dto que se devuelve
     private CarreraResponse aRespuesta(Carrera c) {

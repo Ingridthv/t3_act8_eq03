@@ -9,19 +9,20 @@ import org.springframework.data.repository.query.Param;
 
 public interface CarreraRepository extends JpaRepository<Carrera, Short> {
 
-    // busqueda por texto (clave o nombre) y filtro de estado, todo en el servidor.
-    // el pageable trae la pagina, el tamano y el orden que pide el cliente.
-    // si todas es true se ignora el filtro de activa
+        // busqueda por texto, filtro de estado y filtro de duracion, todo en el servidor.
+    // si todas es true se ignora el filtro de activa, y si duracion es 0 se ignora el de duracion
     @Query("""
         select c from Carrera c
         where (:q = ''
                or lower(c.nombre) like lower(concat('%', :q, '%'))
                or lower(c.clave) like lower(concat('%', :q, '%')))
           and (:todas = true or c.activa = :activa)
+          and (:duracion = 0 or cast(c.duracionSemestres as Integer) = :duracion)
         """)
     Page<Carrera> buscar(@Param("q") String q,
                          @Param("todas") boolean todas,
                          @Param("activa") boolean activa,
+                         @Param("duracion") int duracion,
                          Pageable pageable);
 
     // para validar que no se repitan clave ni nombre
