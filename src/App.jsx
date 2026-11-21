@@ -11,6 +11,7 @@ import EntityPage from './pages/EntityPage.jsx';
 import ReportesPage from './pages/ReportesPage.jsx';
 import RolHomePage from './pages/RolHomePage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
+import DocenteHomePage from './pages/DocenteHomePage.jsx';
 
 export default function App() {
   return (
@@ -55,7 +56,7 @@ export default function App() {
         element={
           <RequireAuth>
             <RequireRole role="docente">
-              <RolHomePage rol="docente" />
+              <DocenteHomePage />
             </RequireRole>
           </RequireAuth>
         }

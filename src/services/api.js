@@ -175,9 +175,20 @@ export function updateUserRequest(id, payload) {
   });
 }
 
+
 // Eliminar usuario
 export function deleteUserRequest(id) {
   return request(`/users/${id}`, {
     method: 'DELETE',
   });
+}
+
+// Consulta los datos del docente que inició sesión
+export function docentePerfilRequest(token) {
+  return backendRequest('/docente/perfil', { token });
+}
+
+// Consulta los grupos asignados al docente
+export function docenteGruposRequest(token) {
+  return backendRequest('/docente/grupos', { token });
 }
