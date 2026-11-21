@@ -1,5 +1,6 @@
 package mx.edu.controlalumnos.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,6 +64,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiError> metodoNoPermitido(HttpRequestMethodNotSupportedException ex, HttpServletRequest req) {
         return responder(HttpStatus.METHOD_NOT_ALLOWED, "Método no permitido para esta ruta.", req, null);
+    }
+
+        // registro que no existe
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ResponseEntity<ApiError> recursoNoEncontrado(RecursoNoEncontradoException ex, HttpServletRequest req) {
+        return responder(HttpStatus.NOT_FOUND, ex.getMessage(), req, null);
+    }
+
+    // datos repetidos o registros relacionados con otros (por ejemplo borrar una carrera con alumnos)
+    @ExceptionHandler({ConflictoException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ApiError> conflicto(RuntimeException ex, HttpServletRequest req) {
+        String mensaje = ex instanceof ConflictoException
+                ? ex.getMessage()
+                : "No se pudo completar la acción: el registro está relacionado con otros datos.";
+        return responder(HttpStatus.CONFLICT, mensaje, req, null);
     }
 
     @ExceptionHandler(Exception.class)
