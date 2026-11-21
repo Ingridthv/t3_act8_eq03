@@ -30,14 +30,17 @@ public class PasswordService {
     private final PasswordEncoder encoder;
     private final JdbcTemplate jdbc;
     private final MailService mail;
+    private final NotificacionService notificaciones;
     private final String urlFrontend;
 
     public PasswordService(UsuarioRepository usuarios, PasswordEncoder encoder, JdbcTemplate jdbc,
-                           MailService mail, @Value("${app.frontend-url:http://localhost:5173}") String urlFrontend) {
+                           MailService mail, NotificacionService notificaciones,
+                           @Value("${app.frontend-url:http://localhost:5173}") String urlFrontend) {
         this.usuarios = usuarios;
         this.encoder = encoder;
         this.jdbc = jdbc;
         this.mail = mail;
+        this.notificaciones = notificaciones;
         this.urlFrontend = urlFrontend;
     }
 
@@ -53,6 +56,7 @@ public class PasswordService {
         }
         usuario.setPasswordHash(encoder.encode(datos.nueva()));
         usuario.setDebeCambiarPassword(false);
+        notificaciones.avisoCambioPassword(usuario);
     }
 
     /** Recuperación: siempre responde igual para no revelar si el correo existe. */
@@ -89,6 +93,7 @@ public class PasswordService {
         usuario.setPasswordHash(encoder.encode(datos.nueva()));
         usuario.setDebeCambiarPassword(false);
         jdbc.update("UPDATE tokens_recuperacion SET usado = true WHERE id = ?", filas.get(0).get("id"));
+        notificaciones.avisoCambioPassword(usuario);
     }
 
     // En la BD solo se guarda el hash del token, nunca el token en claro

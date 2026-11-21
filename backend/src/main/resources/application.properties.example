@@ -34,3 +34,9 @@ app.cors.allowed-origins=http://localhost:5173,https://t3act8eq03.tech
 app.mail.from=no-reply@t3act8eq03.tech
 # URL pública del frontend (para armar el enlace del correo)
 app.frontend-url=https://t3act8eq03.tech/t3_act8_eq03
+
+app.twilio.account-sid=AC617afc0b863dd9f7cec06a8ce017abcv
+app.twilio.auth-token=a13d45b888f3e6efcf66a8023320fabd
+app.twilio.sms-from=+17372508034
+app.twilio.whatsapp-from=whatsapp:+14155238886
+

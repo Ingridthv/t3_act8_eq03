@@ -35,6 +35,10 @@ public class Usuario {
     @Column(name = "correo_contacto")
     private String correoContacto;
 
+    // Celular real donde llegan los avisos SMS / WhatsApp; si está vacío se usa el del alumno o docente
+    @Column(name = "telefono_contacto")
+    private String telefonoContacto;
+
     @Column(name = "alumno_id")
     private UUID alumnoId;
 
@@ -66,6 +70,10 @@ public class Usuario {
 
     public String getCorreoContacto() {
         return correoContacto;
+    }
+
+    public String getTelefonoContacto() {
+        return telefonoContacto;
     }
 
     /** Dirección a la que se envían los correos de la cuenta. */
