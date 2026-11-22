@@ -30,7 +30,7 @@ function validate(values) {
   return errors;
 }
 
-function PasswordField({ label, name, value, error, hint, show, onToggle, onChange, onBlur }) {
+export function PasswordField({ label, name, value, error, hint, show, onToggle, onChange, onBlur }) {
   return (
     <TextField
       label={label} name={name} type={show ? 'text' : 'password'} value={value} error={error} hint={hint}

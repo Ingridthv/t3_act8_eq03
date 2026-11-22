@@ -18,7 +18,7 @@ export const NAV_ITEMS = [
   { to: '/configuracion', label: 'Configuración', icon: Settings },
 ];
 
-export default function Sidebar({ onLogout }) {
+export default function Sidebar({ onLogout, items = NAV_ITEMS }) {
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -29,7 +29,7 @@ export default function Sidebar({ onLogout }) {
       </div>
 
       <nav className="sidebar__nav" aria-label="Menú principal">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

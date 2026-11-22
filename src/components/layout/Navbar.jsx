@@ -31,7 +31,7 @@ export default function Navbar({ title, user, onLogout }) {
         <Avatar src={isAdmin ? ADMIN_PHOTO : undefined} fallbackSrc={user.image} initials={initials} size="md" alt={`Foto de ${fullName}`} />
         <div className="navbar__identity">
           <p className="navbar__name">{fullName}</p>
-          <p className="navbar__role">{isAdmin ? ADMIN_ROLE || 'Administrador' : user.role}</p>
+          <p className="navbar__role">{isAdmin ? ADMIN_ROLE || 'Administrador' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
         </div>
         <button type="button" className="btn btn--secondary btn--sm" onClick={onLogout}>
           Cerrar sesión
