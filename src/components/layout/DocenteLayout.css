@@ -1,0 +1,165 @@
+.dl {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fb;
+}
+
+/* sidebar */
+.dl__sidebar {
+  width: 284px;
+  flex-shrink: 0;
+  background: #3b2a20;
+  color: #d9cfc8;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.dl__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  padding: 0 8px;
+}
+
+.dl__brand-logo {
+  background: #f59e0b;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #3b2a20;
+}
+
+.dl__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.dl__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  color: #d9cfc8;
+  text-decoration: none;
+  font-size: 15px;
+  font-family: inherit;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dl__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dl__item--active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 600;
+  border-left-color: #f59e0b;
+}
+
+.dl__item--disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.dl__item--disabled:hover {
+  background: none;
+}
+
+/* zona principal */
+.dl__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dl__topbar {
+  height: 78px;
+  background: #fff;
+  border-bottom: 1px solid #eceef1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.dl__topbar h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.dl__topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dl__icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #f4f4f5;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.dl__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #efe3d8;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  color: #3b2a20;
+}
+
+.dl__user {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.dl__user small {
+  color: #8a7f78;
+}
+
+.dl__content {
+  padding: 32px;
+}
+
+/* pantallas pequeñas: el sidebar pasa arriba */
+@media (max-width: 800px) {
+  .dl {
+    flex-direction: column;
+  }
+  .dl__sidebar {
+    width: auto;
+    height: auto;
+    position: static;
+  }
+  .dl__menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

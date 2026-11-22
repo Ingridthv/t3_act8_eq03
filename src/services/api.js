@@ -183,6 +183,10 @@ export function deleteUserRequest(id) {
   });
 }
 
+/* =========================================================
+   DOCENTE (Backend Spring Boot)
+   ========================================================= */
+
 // Consulta los datos del docente que inició sesión
 export function docentePerfilRequest(token) {
   return backendRequest('/docente/perfil', { token });
@@ -191,4 +195,18 @@ export function docentePerfilRequest(token) {
 // Consulta los grupos asignados al docente
 export function docenteGruposRequest(token) {
   return backendRequest('/docente/grupos', { token });
+}
+
+// Alumnos inscritos en un grupo del docente (requiere endpoint en el backend)
+export function docenteAlumnosGrupoRequest(token, grupoId) {
+  return backendRequest(`/docente/grupos/${grupoId}/alumnos`, { token });
+}
+
+// Guardar la calificación de un alumno (requiere endpoint en el backend)
+export function docenteGuardarCalificacionRequest(token, inscripcionId, calificacion) {
+  return backendRequest(`/docente/calificaciones/${inscripcionId}`, {
+    method: 'PUT',
+    token,
+    body: JSON.stringify({ calificacion }),
+  });
 }

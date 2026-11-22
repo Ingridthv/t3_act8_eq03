@@ -1,6 +1,6 @@
-
 import { Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout.jsx';
+import DocenteLayout from './components/layout/DocenteLayout.jsx';
 import EstudianteLayout from './components/layout/EstudianteLayout.jsx';
 import { HomeRedirect, PublicOnly, RequireAuth, RequireRole } from './components/layout/RouteGuards.jsx';
 import CambioObligatorioPage from './pages/CambioObligatorioPage.jsx';
@@ -16,6 +16,10 @@ import UsersPage from './pages/UsersPage.jsx';
 
 // modulo docente
 import DocenteHomePage from './pages/DocenteHomePage.jsx';
+import DocenteGruposPage from './pages/docente/DocenteGruposPage.jsx';
+import DocenteCalificacionesPage from './pages/docente/DocenteCalificacionesPage.jsx';
+import DocenteReportesPage from './pages/docente/DocenteReportesPage.jsx';
+import DocentePerfilPage from './pages/docente/DocentePerfilPage.jsx';
 
 // modulo estudiante
 import EstudianteInicioPage from './pages/estudiante/EstudianteInicioPage.jsx';
@@ -64,17 +68,22 @@ export default function App() {
         <Route path="/configuracion" element={<ConfiguracionPage />} />
       </Route>
 
-      {/* ruta del docente */}
+      {/* rutas del docente */}
       <Route
-        path="/docente/inicio"
         element={
           <RequireAuth>
             <RequireRole role="docente">
-              <DocenteHomePage />
+              <DocenteLayout />
             </RequireRole>
           </RequireAuth>
         }
-      />
+      >
+        <Route path="/docente/inicio" element={<DocenteHomePage />} />
+        <Route path="/docente/grupos" element={<DocenteGruposPage />} />
+        <Route path="/docente/calificaciones" element={<DocenteCalificacionesPage />} />
+        <Route path="/docente/reportes" element={<DocenteReportesPage />} />
+        <Route path="/docente/perfil" element={<DocentePerfilPage />} />
+      </Route>
 
       {/* rutas del estudiante */}
       <Route
