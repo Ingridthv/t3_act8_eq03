@@ -3,19 +3,13 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Paginacion from './Paginacion.jsx';
 import useAlumnosGrupo from './useAlumnosGrupo.js';
-import { nombreCompleto, iniciales, promedio, formato } from './utilsDocente.js';
+import { nombreCompleto, iniciales, formato, aNumero } from './utilsDocente.js';
 import './DocenteGruposPage.css';
 import './DocenteExtras.css';
-
-// "Inscrito" o "Baja" según el estatus del alumno
-function etiquetaEstatus(estatus) {
-  return String(estatus || '').toLowerCase().includes('baja') ? 'Baja' : 'Inscrito';
-}
 
 export default function DocenteAlumnosGrupoPage() {
   const { grupoId } = useParams();
   const { grupos } = useOutletContext();
-  const { alumnos, cargando, error } = useAlumnosGrupo(grupoId);
 
   const grupo = grupos.find((g) => String(g.grupo_id) === grupoId);
 
@@ -24,17 +18,13 @@ export default function DocenteAlumnosGrupoPage() {
   const [pagina, setPagina] = useState(1);
   const [porPagina, setPorPagina] = useState(10);
 
-  const texto = busqueda.trim().toLowerCase();
-  const visibles = alumnos.filter((a) => {
-    const coincide =
-      nombreCompleto(a).toLowerCase().includes(texto) ||
-      String(a.matricula).toLowerCase().includes(texto);
-    const coincideEstatus = !estatus || etiquetaEstatus(a.estatus) === estatus;
-    return coincide && coincideEstatus;
+  // el servidor busca, filtra y pagina
+  const { alumnos: filas, total, cargando, error } = useAlumnosGrupo(grupoId, {
+    q: busqueda,
+    estatus,
+    page: pagina,
+    size: porPagina
   });
-
-  const paginaActual = Math.min(pagina, Math.max(1, Math.ceil(visibles.length / porPagina)));
-  const filas = visibles.slice((paginaActual - 1) * porPagina, paginaActual * porPagina);
 
   function limpiar() {
     setBusqueda('');
@@ -95,7 +85,7 @@ export default function DocenteAlumnosGrupoPage() {
               <tr><td colSpan="6" className="dg-empty">No hay alumnos para mostrar.</td></tr>
             ) : (
               filas.map((a) => {
-                const etiqueta = etiquetaEstatus(a.estatus);
+                const etiqueta = a.estatus_inscripcion === 'baja' ? 'Baja' : 'Inscrito';
                 return (
                   <tr key={a.carga_id}>
                     <td>{a.matricula}</td>
@@ -107,7 +97,7 @@ export default function DocenteAlumnosGrupoPage() {
                     </td>
                     <td>{a.carrera || '—'}</td>
                     <td>{a.semestre ? `${a.semestre}°` : '—'}</td>
-                    <td className="dc-negrita">{formato(promedio(a.parcial, a.final))}</td>
+                    <td className="dc-negrita">{formato(aNumero(a.promedio))}</td>
                     <td>
                       <span className={'dg-badge ' + (etiqueta === 'Baja' ? 'dg-badge--gris' : 'dg-badge--ok')}>
                         {etiqueta}
@@ -122,8 +112,8 @@ export default function DocenteAlumnosGrupoPage() {
       </div>
 
       <Paginacion
-        total={visibles.length}
-        pagina={paginaActual}
+        total={total}
+        pagina={pagina}
         porPagina={porPagina}
         onPagina={setPagina}
         onPorPagina={(n) => { setPorPagina(n); setPagina(1); }}

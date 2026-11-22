@@ -100,3 +100,12 @@
 @media (max-width: 800px) {
   .dc-grid2, .dc-grid3 { grid-template-columns: 1fr; }
 }
+
+/* el select de periodo es más ancho para que no se corte el nombre */
+.dg-select.dg-select--periodo { width: 230px; }
+
+/* cambiar de grupo sin volver al listado */
+.dc-cambiar-grupo { width: 250px; }
+.dc-encabezado__acciones { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dc-reporte__cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.dc-reporte__cabecera .dc-reporte__titulo { margin: 0; }

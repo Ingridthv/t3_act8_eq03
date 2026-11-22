@@ -60,7 +60,14 @@ export default function DocenteLayout() {
 
   // tÃ­tulo de la barra superior segÃºn la pÃ¡gina
   const actual = enlaces.find((e) => location.pathname.startsWith(e.to));
-  const titulo = actual ? actual.label : 'Inicio';
+  // cuando se abre un grupo, el título cambia como en el Figma
+  const enGrupo = /^\/docente\/(grupos|calificaciones|reportes)\/[^/]+/.exec(location.pathname);
+  const TITULOS_GRUPO = {
+    grupos: 'Alumnos del grupo',
+    calificaciones: 'Capturar calificaciones',
+    reportes: 'Reporte del grupo'
+  };
+  const titulo = enGrupo ? TITULOS_GRUPO[enGrupo[1]] : actual ? actual.label : 'Inicio';
 
   function salir() {
     logout();

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { changePasswordRequest } from '../../services/api.js';
-import { PERIODO_ACTUAL } from './utilsDocente.js';
 import './DocenteGruposPage.css';
 import './DocenteExtras.css';
 
@@ -24,8 +23,12 @@ export default function DocentePerfilPage() {
     : 'Activo';
 
   // carreras de los grupos del docente (si la API ya las manda)
-  const carreras = [...new Set(grupos.map((g) => g.carrera).filter(Boolean))].join(', ') || '—';
-  const gruposActivos = grupos.filter((g) => g.periodo === PERIODO_ACTUAL).length;
+  // solo del periodo actual; si no tiene grupos en el periodo actual, uso todos
+  const gruposActuales = grupos.filter((g) => g.periodo_actual);
+  const base = gruposActuales.length > 0 ? gruposActuales : grupos;
+  const lista = [...new Set(base.flatMap((g) => (g.carrera ? g.carrera.split(', ') : [])))];
+  const carreras = lista.join(', ') || '—';
+  const gruposActivos = gruposActuales.length;
 
   // requisitos de la contraseña nueva
   const reglas = [

@@ -1,16 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { Award, CheckSquare, AlertTriangle } from 'lucide-react';
-import SelectorGrupo from './SelectorGrupo.jsx';
-import useAlumnosGrupo from './useAlumnosGrupo.js';
-import {
-  nombreCompleto,
-  iniciales,
-  promedio,
-  formato,
-  aNumero,
-  APROBATORIA,
-  RIESGO
-} from './utilsDocente.js';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { docenteReporteRequest } from '../../services/api.js';
+import Paginacion from './Paginacion.jsx';
+import SelectorGrupo, { CambiarGrupo } from './SelectorGrupo.jsx';
+import { nombreCompleto, iniciales, formato, aNumero } from './utilsDocente.js';
 import './DocenteGruposPage.css';
 import './DocenteExtras.css';
 
@@ -32,33 +27,50 @@ export default function DocenteReportesPage() {
 }
 
 function Reporte({ grupoId, grupos }) {
-  const { alumnos, cargando, error } = useAlumnosGrupo(grupoId);
+  const { user } = useAuth();
   const grupo = grupos.find((g) => String(g.grupo_id) === grupoId);
 
-  // promedio de cada alumno
-  const conPromedio = alumnos.map((a) => ({ ...a, prom: promedio(a.parcial, a.final) }));
-  const calificados = conPromedio.filter((a) => a.prom !== null);
+  const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = useState(10);
+  const [datos, setDatos] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
 
-  const promedioGrupo = calificados.length
-    ? calificados.reduce((s, a) => s + a.prom, 0) / calificados.length
-    : null;
+  // las cifras y la lista de alumnos en riesgo las calcula el servidor
+  useEffect(() => {
+    let vigente = true;
+    async function cargar() {
+      setCargando(true);
+      setError('');
+      try {
+        const res = await docenteReporteRequest(user.token, grupoId, { page: pagina, size: porPagina });
+        if (vigente) setDatos(res);
+      } catch (err) {
+        if (vigente) {
+          setDatos(null);
+          setError(err.message || 'No se pudo cargar el reporte.');
+        }
+      } finally {
+        if (vigente) setCargando(false);
+      }
+    }
+    cargar();
+    return () => { vigente = false; };
+  }, [user.token, grupoId, pagina, porPagina]);
 
-  const aprobados = conPromedio.filter(
-    (a) => aNumero(a.final) !== null && a.prom >= APROBATORIA
-  ).length;
-
-  // alumnos con promedio menor a 7.0
-  const enRiesgo = calificados
-    .filter((a) => a.prom < RIESGO)
-    .sort((a, b) => a.prom - b.prom);
+  const enRiesgo = datos?.alumnos?.items || [];
+  const totalRiesgo = datos?.alumnos?.total ?? 0;
 
   return (
     <div className="dc-reporte">
-      <h2 className="dc-reporte__titulo">
-        {grupo
-          ? `${grupo.materia} · Grupo ${String(grupo.nombre_grupo).trim()} · ${grupo.periodo}`
-          : 'Reporte del grupo'}
-      </h2>
+      <div className="dc-reporte__cabecera">
+        <h2 className="dc-reporte__titulo">
+          {grupo
+            ? `${grupo.materia} · Grupo ${String(grupo.nombre_grupo).trim()} · ${grupo.periodo}`
+            : 'Reporte del grupo'}
+        </h2>
+        <CambiarGrupo grupos={grupos} grupoId={grupoId} destino="/docente/reportes" />
+      </div>
 
       {error && <p className="dc-error">{error}</p>}
 
@@ -67,7 +79,7 @@ function Reporte({ grupoId, grupos }) {
           <div className="stat-card__icon"><Award size={22} /></div>
           <div className="stat-card__body">
             <span className="stat-card__label">Promedio del grupo</span>
-            <strong className="stat-card__value">{formato(promedioGrupo)}</strong>
+            <strong className="stat-card__value">{formato(aNumero(datos?.promedio_grupo))}</strong>
           </div>
         </article>
 
@@ -75,7 +87,7 @@ function Reporte({ grupoId, grupos }) {
           <div className="stat-card__icon"><CheckSquare size={22} /></div>
           <div className="stat-card__body">
             <span className="stat-card__label">Aprobados</span>
-            <strong className="stat-card__value">{aprobados} de {alumnos.length}</strong>
+            <strong className="stat-card__value">{datos ? `${datos.aprobados} de ${datos.total_alumnos}` : '—'}</strong>
           </div>
         </article>
 
@@ -83,7 +95,7 @@ function Reporte({ grupoId, grupos }) {
           <div className="stat-card__icon"><AlertTriangle size={22} /></div>
           <div className="stat-card__body">
             <span className="stat-card__label">Con promedio menor a 7.0</span>
-            <strong className="stat-card__value">{enRiesgo.length}</strong>
+            <strong className="stat-card__value">{totalRiesgo}</strong>
           </div>
         </article>
       </section>
@@ -120,10 +132,10 @@ function Reporte({ grupoId, grupos }) {
                     </td>
                     <td>{formato(aNumero(a.parcial))}</td>
                     <td>{formato(aNumero(a.final))}</td>
-                    <td className="dc-negrita">{formato(a.prom)}</td>
+                    <td className="dc-negrita">{formato(aNumero(a.promedio))}</td>
                     <td>
-                      <span className={'dg-badge ' + (a.prom < APROBATORIA ? 'dg-badge--rojo' : 'dg-badge--pend')}>
-                        {a.prom < APROBATORIA ? 'Reprobado' : 'En riesgo'}
+                      <span className={'dg-badge ' + (a.estatus_riesgo === 'Reprobado' ? 'dg-badge--rojo' : 'dg-badge--pend')}>
+                        {a.estatus_riesgo}
                       </span>
                     </td>
                   </tr>
@@ -132,6 +144,14 @@ function Reporte({ grupoId, grupos }) {
             </tbody>
           </table>
         </div>
+
+        <Paginacion
+          total={totalRiesgo}
+          pagina={pagina}
+          porPagina={porPagina}
+          onPagina={setPagina}
+          onPorPagina={(n) => { setPorPagina(n); setPagina(1); }}
+        />
       </section>
     </div>
   );

@@ -197,9 +197,51 @@ export function docenteGruposRequest(token) {
   return backendRequest('/docente/grupos', { token });
 }
 
-// Alumnos inscritos en un grupo del docente (requiere endpoint en el backend)
-export function docenteAlumnosGrupoRequest(token, grupoId) {
-  return backendRequest(`/docente/grupos/${grupoId}/alumnos`, { token });
+// arma "?a=1&b=2" sin mandar los parámetros vacíos
+function queryString(params = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== '' && v != null) query.set(k, v);
+  });
+  const qs = query.toString();
+  return qs ? `?${qs}` : '';
+}
+
+// la pantalla cuenta las páginas desde 1 y Spring desde 0
+function aPagina(res) {
+  return { ...res, page: res.page + 1, totalPages: Math.max(1, res.totalPages) };
+}
+
+// Mis grupos paginados y filtrados en el servidor
+export async function docenteGruposPaginaRequest(token, { q, periodo, carrera, page = 1, size = 10 }) {
+  const res = await backendRequest(
+    `/docente/grupos/pagina${queryString({ q, periodo, carrera, page: page - 1, size })}`,
+    { token }
+  );
+  return aPagina(res);
+}
+
+// Opciones de los filtros de Mis grupos (periodos y carreras)
+export function docenteFiltrosRequest(token) {
+  return backendRequest('/docente/grupos/filtros', { token });
+}
+
+// Alumnos de un grupo del docente (búsqueda, estatus y página en el servidor)
+export async function docenteAlumnosGrupoRequest(token, grupoId, { q, estatus, page = 1, size = 10 } = {}) {
+  const res = await backendRequest(
+    `/docente/grupos/${grupoId}/alumnos${queryString({ q, estatus, page: page - 1, size })}`,
+    { token }
+  );
+  return aPagina(res);
+}
+
+// Reporte del grupo: cifras generales + alumnos con promedio menor a 7.0
+export async function docenteReporteRequest(token, grupoId, { page = 1, size = 10 } = {}) {
+  const res = await backendRequest(
+    `/docente/grupos/${grupoId}/reporte${queryString({ page: page - 1, size })}`,
+    { token }
+  );
+  return { ...res, alumnos: aPagina(res.alumnos) };
 }
 
 // Guardar parcial y final de un alumno en un grupo (cargaId = carga académica)

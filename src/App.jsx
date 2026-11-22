@@ -17,6 +17,7 @@ import UsersPage from './pages/UsersPage.jsx';
 // modulo docente
 import DocenteHomePage from './pages/DocenteHomePage.jsx';
 import DocenteGruposPage from './pages/docente/DocenteGruposPage.jsx';
+import DocenteAlumnosGrupoPage from './pages/docente/DocenteAlumnosGrupoPage.jsx';
 import DocenteCalificacionesPage from './pages/docente/DocenteCalificacionesPage.jsx';
 import DocenteReportesPage from './pages/docente/DocenteReportesPage.jsx';
 import DocentePerfilPage from './pages/docente/DocentePerfilPage.jsx';
@@ -80,8 +81,11 @@ export default function App() {
       >
         <Route path="/docente/inicio" element={<DocenteHomePage />} />
         <Route path="/docente/grupos" element={<DocenteGruposPage />} />
+        <Route path="/docente/grupos/:grupoId" element={<DocenteAlumnosGrupoPage />} />
         <Route path="/docente/calificaciones" element={<DocenteCalificacionesPage />} />
+        <Route path="/docente/calificaciones/:grupoId" element={<DocenteCalificacionesPage />} />
         <Route path="/docente/reportes" element={<DocenteReportesPage />} />
+        <Route path="/docente/reportes/:grupoId" element={<DocenteReportesPage />} />
         <Route path="/docente/perfil" element={<DocentePerfilPage />} />
       </Route>
 

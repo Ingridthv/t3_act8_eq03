@@ -1,5 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-import { PERIODO_ACTUAL } from './utilsDocente.js';
+import { Navigate, useNavigate } from 'react-router-dom';
 import './DocenteGruposPage.css';
 import './DocenteExtras.css';
 
@@ -7,8 +6,13 @@ import './DocenteExtras.css';
 export default function SelectorGrupo({ grupos, destino, titulo }) {
   const navigate = useNavigate();
 
-  const delPeriodo = grupos.filter((g) => g.periodo === PERIODO_ACTUAL);
+  const delPeriodo = grupos.filter((g) => g.periodo_actual);
   const lista = delPeriodo.length > 0 ? delPeriodo : grupos;
+
+  // como en el Figma: la pantalla abre directo con un grupo del periodo actual
+  if (lista.length > 0) {
+    return <Navigate to={`${destino}/${lista[0].grupo_id}`} replace />;
+  }
 
   return (
     <section className="dg-card">
@@ -49,5 +53,27 @@ export default function SelectorGrupo({ grupos, destino, titulo }) {
         </table>
       </div>
     </section>
+  );
+}
+
+// select para cambiar de grupo sin volver al listado
+export function CambiarGrupo({ grupos, grupoId, destino }) {
+  const navigate = useNavigate();
+  const actuales = grupos.filter((g) => g.periodo_actual);
+  const opciones = actuales.length > 0 ? actuales : grupos;
+
+  return (
+    <select
+      className="dg-select dc-cambiar-grupo"
+      value={grupoId}
+      onChange={(e) => navigate(`${destino}/${e.target.value}`)}
+      aria-label="Cambiar de grupo"
+    >
+      {opciones.map((g) => (
+        <option key={g.grupo_id} value={g.grupo_id}>
+          {g.materia} · Grupo {String(g.nombre_grupo).trim()}
+        </option>
+      ))}
+    </select>
   );
 }

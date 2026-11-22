@@ -1,6 +1,3 @@
-// periodo que se muestra por defecto (como en el Figma)
-export const PERIODO_ACTUAL = 'Agosto-Diciembre 2021';
-
 // calificación mínima para aprobar y límite para considerar "en riesgo"
 export const APROBATORIA = 6;
 export const RIESGO = 7;
@@ -31,8 +28,14 @@ export function formato(n) {
   return n === null || n === undefined ? '—' : Number(n).toFixed(1);
 }
 
-// Aprobado / Reprobado / Pendiente (pendiente si todavía no hay calificación final)
+// Aprobado / Reprobado / Pendiente según la calificación final (igual que la base de datos)
 export function estadoNota(parcial, final) {
   if (aNumero(final) === null) return 'Pendiente';
-  return promedio(parcial, final) >= APROBATORIA ? 'Aprobado' : 'Reprobado';
+  return aNumero(final) >= APROBATORIA ? 'Aprobado' : 'Reprobado';
+}
+
+// texto de un estatus que viene de la base de datos ("aprobado" -> "Aprobado")
+export function capitalizar(texto) {
+  const t = String(texto || '');
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }

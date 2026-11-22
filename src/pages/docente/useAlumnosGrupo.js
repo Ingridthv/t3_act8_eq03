@@ -1,29 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { docenteAlumnosGrupoRequest } from '../../services/api.js';
 
-// carga los alumnos de un grupo (con parcial y final)
-export default function useAlumnosGrupo(grupoId) {
+// carga una página de alumnos del grupo; la búsqueda, el estatus y la paginación los hace el servidor
+export default function useAlumnosGrupo(grupoId, { q = '', estatus = '', page = 1, size = 10 } = {}) {
   const { user } = useAuth();
-  const [alumnos, setAlumnos] = useState([]);
+  const [datos, setDatos] = useState({ items: [], total: 0, totalPages: 1 });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
-    async function cargar() {
+    let vigente = true;
+    // espera un momento al escribir para no consultar en cada letra
+    const espera = setTimeout(async () => {
       setCargando(true);
       setError('');
       try {
-        setAlumnos(await docenteAlumnosGrupoRequest(user.token, grupoId));
+        const res = await docenteAlumnosGrupoRequest(user.token, grupoId, { q: q.trim(), estatus, page, size });
+        if (vigente) setDatos(res);
       } catch (err) {
-        setAlumnos([]);
-        setError(err.message || 'No se pudieron cargar los alumnos.');
+        if (vigente) {
+          setDatos({ items: [], total: 0, totalPages: 1 });
+          setError(err.message || 'No se pudieron cargar los alumnos.');
+        }
       } finally {
-        setCargando(false);
+        if (vigente) setCargando(false);
       }
-    }
-    cargar();
-  }, [grupoId, user.token]);
+    }, q ? 300 : 0);
 
-  return { alumnos, cargando, error };
+    return () => {
+      vigente = false;
+      clearTimeout(espera);
+    };
+  }, [grupoId, user.token, q, estatus, page, size, version]);
+
+  const recargar = useCallback(() => setVersion((v) => v + 1), []);
+
+  return { alumnos: datos.items, total: datos.total, cargando, error, recargar };
 }

@@ -1,14 +1,13 @@
 import { useOutletContext } from 'react-router-dom';
 import { Users, User, Clock } from 'lucide-react';
 
-// periodo que muestra el diseño de Figma (luego puedes calcularlo)
-const PERIODO_ACTUAL = 'Agosto-Diciembre 2021';
-
 export default function DocenteHomePage() {
   // perfil y grupos los carga DocenteLayout
   const { perfil, grupos } = useOutletContext();
 
-  const gruposPeriodo = grupos.filter((g) => g.periodo === PERIODO_ACTUAL);
+  const gruposPeriodo = grupos.filter((g) => g.periodo_actual);
+  // nombre del periodo actual, tal como está en la base de datos
+  const nombrePeriodo = gruposPeriodo[0]?.periodo || grupos.find((g) => g.periodo_actual)?.periodo || '';
 
   // si la API no trae "alumnos", uso el cupo
   const totalAlumnos = gruposPeriodo.reduce(
@@ -25,7 +24,7 @@ export default function DocenteHomePage() {
   return (
     <div className="page">
       <h1 className="page__title">
-        Hola, {perfil?.nombre} · Periodo {PERIODO_ACTUAL}
+        Hola, {perfil?.nombre}{nombrePeriodo ? ` · Periodo ${nombrePeriodo}` : ''}
       </h1>
 
       <section className="stat-grid">
