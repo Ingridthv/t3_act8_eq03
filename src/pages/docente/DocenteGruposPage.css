@@ -1,0 +1,150 @@
+/* tarjeta principal */
+.dg-card {
+  background: #fff;
+  border: 1px solid #eceef1;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.dg-title {
+  margin: 0 0 18px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* filtros */
+.dg-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.dg-search {
+  position: relative;
+  width: 260px;
+}
+
+.dg-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.dg-input,
+.dg-select {
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.dg-input {
+  width: 100%;
+  padding: 0 12px 0 36px;
+  box-sizing: border-box;
+}
+
+.dg-select {
+  width: 170px;
+  padding: 0 32px 0 12px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.dg-input:focus,
+.dg-select:focus {
+  outline: none;
+  border-color: #3b2a20;
+}
+
+.dg-clear {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dg-clear:hover {
+  background: #f8f9fb;
+}
+
+/* tabla */
+.dg-table-wrap {
+  overflow-x: auto;
+}
+
+.dg-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.dg-table th {
+  background: #3b2a20;
+  color: #fff;
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dg-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.dg-table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+/* se anulan recortes con "..." que pueda traer el CSS global */
+.dg-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eceef1;
+  color: #111827;
+  white-space: normal;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.dg-empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+/* badges de captura */
+.dg-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dg-badge--ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.dg-badge--pend {
+  background: #fef3c7;
+  color: #b45309;
+}

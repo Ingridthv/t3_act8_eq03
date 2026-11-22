@@ -202,11 +202,11 @@ export function docenteAlumnosGrupoRequest(token, grupoId) {
   return backendRequest(`/docente/grupos/${grupoId}/alumnos`, { token });
 }
 
-// Guardar la calificación de un alumno (requiere endpoint en el backend)
-export function docenteGuardarCalificacionRequest(token, inscripcionId, calificacion) {
-  return backendRequest(`/docente/calificaciones/${inscripcionId}`, {
+// Guardar parcial y final de un alumno en un grupo (cargaId = carga académica)
+export function docenteGuardarCalificacionRequest(token, cargaId, { parcial, final }) {
+  return backendRequest(`/docente/calificaciones/${cargaId}`, {
     method: 'PUT',
     token,
-    body: JSON.stringify({ calificacion }),
+    body: JSON.stringify({ parcial, final }),
   });
 }

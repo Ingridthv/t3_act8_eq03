@@ -16,6 +16,12 @@ export default function DocenteHomePage() {
     0
   );
 
+  // calificaciones pendientes (la API manda "pendientes" por grupo)
+  const pendientes = gruposPeriodo.reduce(
+    (total, g) => total + (Number(g.pendientes) || 0),
+    0
+  );
+
   return (
     <div className="page">
       <h1 className="page__title">
@@ -43,7 +49,7 @@ export default function DocenteHomePage() {
           <div className="stat-card__icon"><Clock size={22} /></div>
           <div className="stat-card__body">
             <span className="stat-card__label">Calificaciones pendientes</span>
-            <strong className="stat-card__value">0</strong>
+            <strong className="stat-card__value">{pendientes}</strong>
           </div>
         </article>
       </section>

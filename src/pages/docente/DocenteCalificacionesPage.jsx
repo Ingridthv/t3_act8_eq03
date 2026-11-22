@@ -1,197 +1,260 @@
 import { useEffect, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import {
-  docenteAlumnosGrupoRequest,
-  docenteGuardarCalificacionRequest
-} from '../../services/api.js';
+import { docenteGuardarCalificacionRequest } from '../../services/api.js';
+import Paginacion from './Paginacion.jsx';
+import SelectorGrupo from './SelectorGrupo.jsx';
+import useAlumnosGrupo from './useAlumnosGrupo.js';
+import { nombreCompleto, iniciales, aNumero, estadoNota } from './utilsDocente.js';
+import './DocenteGruposPage.css';
+import './DocenteExtras.css';
 
-// escala de calificación (cámbiala si usan 0-10)
-const ESCALA_MAX = 100;
+const CLASE_ESTADO = {
+  Aprobado: 'dg-badge--ok',
+  Reprobado: 'dg-badge--rojo',
+  Pendiente: 'dg-badge--gris'
+};
 
 export default function DocenteCalificacionesPage() {
-  const { user } = useAuth();
+  const { grupoId } = useParams();
   const { grupos } = useOutletContext();
 
-  const [grupoId, setGrupoId] = useState('');
-  const [alumnos, setAlumnos] = useState([]);
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState('');
-  const [guardando, setGuardando] = useState(null);
-
-  // cuando elijo un grupo, cargo sus alumnos
-  useEffect(() => {
-    if (!grupoId) {
-      setAlumnos([]);
-      return;
-    }
-
-    async function cargarAlumnos() {
-      setCargando(true);
-      setError('');
-      setMensaje('');
-      try {
-        const datos = await docenteAlumnosGrupoRequest(user.token, grupoId);
-        // dejo la calificación como texto para poder editarla en el input
-        setAlumnos(
-          datos.map((a) => ({ ...a, nota: a.calificacion ?? '' }))
-        );
-      } catch (err) {
-        setAlumnos([]);
-        setError(err.message || 'No se pudieron cargar los alumnos.');
-      } finally {
-        setCargando(false);
-      }
-    }
-
-    cargarAlumnos();
-  }, [grupoId, user.token]);
-
-  // actualizo la nota escrita en el input
-  function cambiarNota(inscripcionId, valor) {
-    setAlumnos((lista) =>
-      lista.map((a) =>
-        a.inscripcion_id === inscripcionId ? { ...a, nota: valor } : a
-      )
+  // sin grupo elegido: muestro la lista para escoger uno
+  if (!grupoId) {
+    return (
+      <SelectorGrupo
+        grupos={grupos}
+        destino="/docente/calificaciones"
+        titulo="Elige un grupo para capturar calificaciones"
+      />
     );
   }
 
-  // guardo la calificación de un alumno
-  async function guardar(alumno) {
-    const valor = Number(alumno.nota);
+  return <Captura grupoId={grupoId} grupos={grupos} />;
+}
 
-    if (alumno.nota === '' || Number.isNaN(valor) || valor < 0 || valor > ESCALA_MAX) {
-      setError(`La calificación debe estar entre 0 y ${ESCALA_MAX}.`);
-      setMensaje('');
+function Captura({ grupoId, grupos }) {
+  const { user } = useAuth();
+  const { alumnos, cargando, error } = useAlumnosGrupo(grupoId);
+  const grupo = grupos.find((g) => String(g.grupo_id) === grupoId);
+
+  // copia editable de las calificaciones
+  const [filas, setFilas] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
+  const [estatus, setEstatus] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = useState(10);
+  const [guardando, setGuardando] = useState(false);
+  const [mensaje, setMensaje] = useState('');
+  const [fallo, setFallo] = useState('');
+
+  useEffect(() => {
+    setFilas(
+      alumnos.map((a) => ({
+        ...a,
+        parcial: a.parcial ?? '',
+        final: a.final ?? '',
+        origParcial: a.parcial ?? '',
+        origFinal: a.final ?? ''
+      }))
+    );
+  }, [alumnos]);
+
+  function cambiar(cargaId, campo, valor) {
+    setMensaje('');
+    setFallo('');
+    setFilas((lista) =>
+      lista.map((f) => (f.carga_id === cargaId ? { ...f, [campo]: valor } : f))
+    );
+  }
+
+  const texto = busqueda.trim().toLowerCase();
+  const visibles = filas.filter((f) => {
+    const coincide =
+      nombreCompleto(f).toLowerCase().includes(texto) ||
+      String(f.matricula).toLowerCase().includes(texto);
+    const coincideEstatus = !estatus || estadoNota(f.parcial, f.final) === estatus;
+    return coincide && coincideEstatus;
+  });
+
+  const paginaActual = Math.min(pagina, Math.max(1, Math.ceil(visibles.length / porPagina)));
+  const pagina_filas = visibles.slice((paginaActual - 1) * porPagina, paginaActual * porPagina);
+
+  function limpiar() {
+    setBusqueda('');
+    setEstatus('');
+    setPagina(1);
+  }
+
+  // guardo solo las filas que cambiaron
+  async function guardar() {
+    setMensaje('');
+    setFallo('');
+
+    const cambiadas = filas.filter(
+      (f) => String(f.parcial) !== String(f.origParcial) || String(f.final) !== String(f.origFinal)
+    );
+
+    if (cambiadas.length === 0) {
+      setMensaje('No hay cambios por guardar.');
       return;
     }
 
-    setGuardando(alumno.inscripcion_id);
-    setError('');
-    setMensaje('');
+    // las notas deben estar entre 0 y 10
+    for (const f of cambiadas) {
+      for (const campo of ['parcial', 'final']) {
+        const n = aNumero(f[campo]);
+        if (f[campo] !== '' && (n === null || n < 0 || n > 10)) {
+          setFallo(`La calificación de ${nombreCompleto(f)} debe estar entre 0 y 10.`);
+          return;
+        }
+      }
+    }
+
+    setGuardando(true);
     try {
-      await docenteGuardarCalificacionRequest(user.token, alumno.inscripcion_id, valor);
-      setAlumnos((lista) =>
-        lista.map((a) =>
-          a.inscripcion_id === alumno.inscripcion_id ? { ...a, calificacion: valor } : a
+      await Promise.all(
+        cambiadas.map((f) =>
+          docenteGuardarCalificacionRequest(user.token, f.carga_id, {
+            parcial: aNumero(f.parcial),
+            final: aNumero(f.final)
+          })
         )
       );
-      setMensaje(`Calificación de ${alumno.nombre} guardada.`);
+      // lo guardado pasa a ser el nuevo valor original
+      setFilas((lista) =>
+        lista.map((f) => ({ ...f, origParcial: f.parcial, origFinal: f.final }))
+      );
+      setMensaje(`Se guardaron ${cambiadas.length} calificaciones.`);
     } catch (err) {
-      setError(err.message || 'No se pudo guardar la calificación.');
+      setFallo(err.message || 'No se pudieron guardar las calificaciones.');
     } finally {
-      setGuardando(null);
+      setGuardando(false);
     }
   }
 
-  const pendientes = alumnos.filter(
-    (a) => a.calificacion === null || a.calificacion === undefined
-  ).length;
-
   return (
-    <div className="page">
-      <section className="card">
-        <div className="card__header">
-          <div>
-            <h2 className="card__title">Calificaciones</h2>
-            <p style={{ color: 'var(--gris)' }}>
-              Selecciona un grupo para capturar o consultar calificaciones.
-            </p>
-          </div>
+    <section className="dg-card">
+      <div className="dc-encabezado">
+        <h2 className="dg-title" style={{ margin: 0 }}>
+          {grupo
+            ? `${grupo.materia} · Grupo ${String(grupo.nombre_grupo).trim()}`
+            : 'Capturar calificaciones'}
+        </h2>
+        <button
+          type="button"
+          className="dc-guardar"
+          onClick={guardar}
+          disabled={guardando}
+        >
+          {guardando ? 'Guardando…' : 'Guardar calificaciones'}
+        </button>
+      </div>
 
-          <select
-            value={grupoId}
-            onChange={(e) => setGrupoId(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb' }}
-          >
-            <option value="">Elige un grupo…</option>
-            {grupos.map((g) => (
-              <option key={g.grupo_id} value={g.grupo_id}>
-                {g.materia} · Grupo {g.nombre_grupo} · {g.periodo}
-              </option>
-            ))}
-          </select>
+      <div className="dg-filters">
+        <div className="dg-search" style={{ width: 316 }}>
+          <Search size={16} />
+          <input
+            className="dg-input"
+            type="text"
+            placeholder="Buscar por alumno o matrícula"
+            value={busqueda}
+            onChange={(e) => { setBusqueda(e.target.value); setPagina(1); }}
+          />
         </div>
 
-        {error && (
-          <div className="alert alert--error">
-            <p className="alert__text">{error}</p>
-          </div>
-        )}
-        {mensaje && <p style={{ color: '#15803d', marginBottom: 12 }}>{mensaje}</p>}
+        <select
+          className="dg-select"
+          style={{ width: 207 }}
+          value={estatus}
+          onChange={(e) => { setEstatus(e.target.value); setPagina(1); }}
+        >
+          <option value="">Estatus</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Reprobado">Reprobado</option>
+          <option value="Pendiente">Pendiente</option>
+        </select>
 
-        {!grupoId ? (
-          <p style={{ color: 'var(--gris)' }}>Aún no has elegido un grupo.</p>
-        ) : cargando ? (
-          <div className="state">
-            <div className="spinner"></div>
-            <p>Cargando alumnos...</p>
-          </div>
-        ) : (
-          <>
-            <p style={{ marginBottom: 12 }}>
-              <span className="tag tag--neutro">{alumnos.length} alumnos</span>{' '}
-              <span className="tag tag--neutro">{pendientes} sin calificar</span>
-            </p>
+        <button type="button" className="dg-clear" onClick={limpiar}>Limpiar</button>
+      </div>
 
-            <div className="table-wrap">
-              <table className="data-table" style={{ minWidth: 700 }}>
-                <thead>
-                  <tr>
-                    <th>Matrícula</th>
-                    <th>Alumno</th>
-                    <th>Calificación</th>
-                    <th>Acción</th>
+      {error && <p className="dc-error">{error}</p>}
+      {fallo && <p className="dc-error">{fallo}</p>}
+      {mensaje && <p className="dc-exito">{mensaje}</p>}
+
+      <div className="dg-table-wrap">
+        <table className="dg-table">
+          <thead>
+            <tr>
+              <th>Matrícula</th>
+              <th>Alumno</th>
+              <th>Parcial</th>
+              <th>Final</th>
+              <th>Estatus</th>
+              <th>Observaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cargando ? (
+              <tr><td colSpan="6" className="dg-empty">Cargando alumnos...</td></tr>
+            ) : pagina_filas.length === 0 ? (
+              <tr><td colSpan="6" className="dg-empty">No hay alumnos para mostrar.</td></tr>
+            ) : (
+              pagina_filas.map((f) => {
+                const estado = estadoNota(f.parcial, f.final);
+                return (
+                  <tr key={f.carga_id}>
+                    <td>{f.matricula}</td>
+                    <td>
+                      <div className="dc-alumno">
+                        <span className="dc-avatar">{iniciales(f)}</span>
+                        {nombreCompleto(f)}
+                      </div>
+                    </td>
+                    <td>
+                      <input
+                        className="dc-nota"
+                        type="number"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        placeholder="—"
+                        value={f.parcial}
+                        onChange={(e) => cambiar(f.carga_id, 'parcial', e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="dc-nota"
+                        type="number"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        placeholder="—"
+                        value={f.final}
+                        onChange={(e) => cambiar(f.carga_id, 'final', e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <span className={'dg-badge ' + CLASE_ESTADO[estado]}>{estado}</span>
+                    </td>
+                    <td>{estado === 'Reprobado' ? 'Revisar con tutoría' : '—'}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {alumnos.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="data-table__empty">
-                        Este grupo no tiene alumnos inscritos.
-                      </td>
-                    </tr>
-                  ) : (
-                    alumnos.map((a) => (
-                      <tr key={a.inscripcion_id}>
-                        <td>{a.matricula}</td>
-                        <td className="data-table__strong">
-                          {a.nombre} {a.apellidos}
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            min="0"
-                            max={ESCALA_MAX}
-                            value={a.nota}
-                            onChange={(e) => cambiarNota(a.inscripcion_id, e.target.value)}
-                            style={{
-                              width: 90,
-                              padding: '6px 10px',
-                              borderRadius: 8,
-                              border: '1px solid #e5e7eb'
-                            }}
-                          />
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn--primary"
-                            disabled={guardando === a.inscripcion_id}
-                            onClick={() => guardar(a)}
-                          >
-                            {guardando === a.inscripcion_id ? 'Guardando…' : 'Guardar'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </section>
-    </div>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <Paginacion
+        total={visibles.length}
+        pagina={paginaActual}
+        porPagina={porPagina}
+        onPagina={setPagina}
+        onPorPagina={(n) => { setPorPagina(n); setPagina(1); }}
+      />
+    </section>
   );
 }

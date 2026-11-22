@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { docentePerfilRequest, docenteGruposRequest } from '../../services/api.js';
-import './DocenteLayout.css';
+import '../../pages/docente/DocenteLayout.css';
 
 const enlaces = [
   { to: '/docente/inicio', label: 'Inicio', icon: Home },
@@ -27,7 +27,7 @@ export default function DocenteLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // cargo una sola vez el perfil y los grupos; las páginas los reciben por contexto
+  // cargo una sola vez el perfil y los grupos; las pÃ¡ginas los reciben por contexto
   const [perfil, setPerfil] = useState(null);
   const [grupos, setGrupos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -43,7 +43,7 @@ export default function DocenteLayout() {
         setPerfil(datosPerfil);
         setGrupos(datosGrupos);
       } catch (err) {
-        setError(err.message || 'No se pudo cargar la información.');
+        setError(err.message || 'No se pudo cargar la informaciÃ³n.');
       } finally {
         setCargando(false);
       }
@@ -56,9 +56,9 @@ export default function DocenteLayout() {
   const nombreCorto = perfil ? `${perfil.nombre} ${primerApellido}`.trim() : 'Docente';
   const iniciales = perfil
     ? `${perfil.nombre?.[0] || ''}${primerApellido[0] || ''}`.toUpperCase()
-    : '·';
+    : 'Â·';
 
-  // título de la barra superior según la página
+  // tÃ­tulo de la barra superior segÃºn la pÃ¡gina
   const actual = enlaces.find((e) => location.pathname.startsWith(e.to));
   const titulo = actual ? actual.label : 'Inicio';
 
@@ -115,7 +115,7 @@ export default function DocenteLayout() {
           {cargando ? (
             <div className="state">
               <div className="spinner"></div>
-              <p>Cargando información del docente...</p>
+              <p>Cargando informaciónn del docente...</p>
             </div>
           ) : error ? (
             <div className="page">

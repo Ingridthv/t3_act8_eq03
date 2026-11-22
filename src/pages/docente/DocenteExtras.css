@@ -1,0 +1,102 @@
+/* Estilos extra de las pantallas del docente.
+   Se usan junto con DocenteGruposPage.css (que no se modifica). */
+
+/* badges adicionales */
+.dg-badge--gris { background: #eef0f4; color: #475569; }
+.dg-badge--rojo { background: #fee2e2; color: #b91c1c; }
+
+/* filas que se pueden presionar */
+.dg-row-link { cursor: pointer; }
+.dg-row-link:hover td { background: #faf7f4; }
+
+/* alumno con avatar de iniciales */
+.dc-alumno { display: flex; align-items: center; gap: 12px; }
+.dc-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #efe3d8; color: #3b2a20;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.dc-avatar--grande { width: 96px; height: 96px; font-size: 34px; }
+.dc-negrita { font-weight: 600; }
+
+/* título + botón naranja */
+.dc-encabezado {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.dc-guardar {
+  background: #f59e0b; color: #3b2a20;
+  border: none; border-radius: 8px;
+  padding: 0 24px; height: 44px;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
+.dc-guardar:hover:not(:disabled) { background: #e08e00; }
+.dc-guardar:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* campos de calificación */
+.dc-nota {
+  width: 92px; height: 40px; text-align: center;
+  border: 1px solid #e5e7eb; border-radius: 8px;
+  font-family: inherit; font-size: 13px; color: #111827; background: #fff;
+}
+.dc-nota:focus { outline: none; border-color: #3b2a20; }
+
+/* mensajes */
+.dc-error { color: #b91c1c; margin: 0 0 12px; font-size: 13px; }
+.dc-exito { color: #15803d; margin: 0 0 12px; font-size: 13px; }
+.dc-error-chico { color: #dc2626; font-size: 12px; }
+
+/* paginación */
+.dc-pie {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-top: 22px; font-size: 13px; color: #6b7280;
+}
+.dc-pie__info { display: flex; align-items: center; gap: 10px; }
+.dc-pie__select { width: 88px; }
+.dc-pie__dato { color: #6b7280; }
+.dc-pag { display: flex; align-items: center; gap: 8px; }
+.dc-pag__btn {
+  min-width: 36px; height: 36px; padding: 0 8px;
+  border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
+  color: #111827; font-family: inherit; font-size: 13px; cursor: pointer;
+  display: grid; place-items: center;
+}
+.dc-pag__btn:disabled { opacity: 0.4; cursor: default; }
+.dc-pag__btn--activo { background: #f59e0b; border-color: #f59e0b; color: #3b2a20; font-weight: 600; }
+
+/* reporte */
+.dc-reporte__titulo { font-size: 20px; font-weight: 600; margin: 0 0 20px; color: #111827; }
+.dc-reporte .stat-grid { margin-bottom: 24px; }
+
+/* mi perfil */
+.dc-cabecera { display: flex; align-items: center; gap: 24px; margin-bottom: 8px; }
+.dc-cabecera__nombre { margin: 0 0 4px; font-size: 24px; font-weight: 700; color: #111827; }
+.dc-cabecera__sub { margin: 0 0 10px; color: #6b7280; font-size: 14px; }
+.dc-linea { border: none; border-top: 1px solid #eceef1; margin: 24px 0; }
+.dc-subtitulo { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #111827; }
+.dc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+.dc-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px 24px; }
+.dc-campo { display: flex; flex-direction: column; gap: 6px; }
+.dc-campo label { font-size: 12px; color: #6b7280; }
+.dc-campo__valor {
+  background: #f8f9fb; border: 1px solid #eceef1; border-radius: 8px;
+  padding: 0 16px; height: 50px; display: flex; align-items: center;
+  font-size: 14px; color: #111827;
+}
+.dc-entrada {
+  height: 50px; padding: 0 16px; border: 1px solid #e5e7eb; border-radius: 8px;
+  font-family: inherit; font-size: 14px; background: #fff;
+}
+.dc-entrada:focus { outline: none; border-color: #3b2a20; }
+.dc-entrada--error { border-color: #dc2626; }
+.dc-reglas { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0 20px; font-size: 13px; }
+.dc-regla { display: flex; align-items: center; gap: 8px; color: #9ca3af; }
+.dc-regla i { width: 14px; height: 14px; border-radius: 50%; background: #d1d5db; display: inline-block; }
+.dc-regla--ok { color: #15803d; }
+.dc-regla--ok i { background: #16a34a; }
+
+@media (max-width: 800px) {
+  .dc-grid2, .dc-grid3 { grid-template-columns: 1fr; }
+}
