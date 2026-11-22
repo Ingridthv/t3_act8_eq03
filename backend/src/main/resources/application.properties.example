@@ -33,10 +33,16 @@ app.cors.allowed-origins=http://localhost:5173,https://t3act8eq03.tech
 #spring.mail.properties.mail.smtp.starttls.enable=false
 app.mail.from=no-reply@t3act8eq03.tech
 # URL pública del frontend (para armar el enlace del correo)
-app.frontend-url=https://t3act8eq03.tech/t3_act8_eq03
+app.frontend-url=http://localhost:5173
 
-app.twilio.account-sid=AC617afc0b863dd9f7cec06a8ce017abcv
-app.twilio.auth-token=a13d45b888f3e6efcf66a8023320fabd
-app.twilio.sms-from=+17372508034
+# Twilio (SMS y WhatsApp). Pon TUS credenciales solo en el application.properties real, nunca aquí.
+# El número de WhatsApp del sandbox lo muestra la consola de Twilio (Messaging > Try it out).
+app.twilio.account-sid=TU_ACCOUNT_SID
+app.twilio.auth-token=TU_AUTH_TOKEN
+app.twilio.sms-from=+1XXXXXXXXXX
 app.twilio.whatsapp-from=whatsapp:+14155238886
-
+# Solo cuenta TRIAL: el SMS acepta únicamente un nombre de plantilla (p. ej. sms_account_alerts) y WhatsApp un ContentSid
+# de plantilla del sandbox (HX...) con sus variables en JSON. Con cuenta mejorada déjalas vacías (se envía texto libre).
+app.twilio.sms-template=
+app.twilio.whatsapp-content-sid=
+app.twilio.whatsapp-content-variables=

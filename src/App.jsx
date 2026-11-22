@@ -1,6 +1,8 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { Route, Routes } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout.jsx';
-import { PublicOnly, RequireAuth, RequireRole } from './components/layout/RouteGuards.jsx';
+import EstudianteLayout from './components/layout/EstudianteLayout.jsx';
+import { HomeRedirect, PublicOnly, RequireAuth, RequireRole } from './components/layout/RouteGuards.jsx';
 import CambioObligatorioPage from './pages/CambioObligatorioPage.jsx';
 import ConfiguracionPage from './pages/ConfiguracionPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
@@ -11,11 +13,21 @@ import EntityPage from './pages/EntityPage.jsx';
 import ReportesPage from './pages/ReportesPage.jsx';
 import RolHomePage from './pages/RolHomePage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
+
+// modulo docente
 import DocenteHomePage from './pages/DocenteHomePage.jsx';
+
+// modulo estudiante
+import EstudianteInicioPage from './pages/estudiante/EstudianteInicioPage.jsx';
+import MiHistorialPage from './pages/estudiante/MiHistorialPage.jsx';
+import MiPerfilPage from './pages/estudiante/MiPerfilPage.jsx';
+import MisCalificacionesPage from './pages/estudiante/MisCalificacionesPage.jsx';
+import MisMateriasPage from './pages/estudiante/MisMateriasPage.jsx';
 
 export default function App() {
   return (
     <Routes>
+      {/* rutas publicas */}
       <Route
         path="/login"
         element={
@@ -29,6 +41,7 @@ export default function App() {
       <Route path="/cambiar-password" element={<CambioObligatorioPage />} />
       <Route path="/restablecer" element={<RestablecerPage />} />
 
+      {/* rutas del administrador */}
       <Route
         element={
           <RequireAuth>
@@ -51,6 +64,7 @@ export default function App() {
         <Route path="/configuracion" element={<ConfiguracionPage />} />
       </Route>
 
+      {/* ruta del docente */}
       <Route
         path="/docente/inicio"
         element={
@@ -61,18 +75,26 @@ export default function App() {
           </RequireAuth>
         }
       />
+
+      {/* rutas del estudiante */}
       <Route
-        path="/estudiante/inicio"
         element={
           <RequireAuth>
             <RequireRole role="estudiante">
-              <RolHomePage rol="estudiante" />
+              <EstudianteLayout />
             </RequireRole>
           </RequireAuth>
         }
-      />
+      >
+        <Route path="/estudiante/inicio" element={<EstudianteInicioPage />} />
+        <Route path="/estudiante/materias" element={<MisMateriasPage />} />
+        <Route path="/estudiante/calificaciones" element={<MisCalificacionesPage />} />
+        <Route path="/estudiante/historial" element={<MiHistorialPage />} />
+        <Route path="/estudiante/perfil" element={<MiPerfilPage />} />
+      </Route>
 
-      <Route path="*" element={<Navigate to="/inicio" replace />} />
+      {/* si la ruta no existe, regreso al inicio correspondiente */}
+      <Route path="*" element={<HomeRedirect />} />
     </Routes>
   );
 }
