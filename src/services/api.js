@@ -1,9 +1,5 @@
-// Todas las llamadas a la API (DummyJSON) viven aquí.
+// Todas las llamadas al backend (Spring Boot) viven aquí.
 // Los componentes nunca usan fetch directamente.
-
-const BASE_URL = 'https://dummyjson.com';
-
-const USER_FIELDS = 'firstName,lastName,email,age,image,role,username,company,address';
 
 // Error personalizado para las peticiones
 export class ApiError extends Error {
@@ -12,41 +8,6 @@ export class ApiError extends Error {
     this.name = 'ApiError';
     this.status = status;
   }
-}
-
-// Peticiones a DummyJSON
-async function request(path, options = {}) {
-  let response;
-
-  try {
-    response = await fetch(`${BASE_URL}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
-    });
-  } catch (error) {
-    if (error.name === 'AbortError') throw error;
-
-    throw new ApiError(
-      'No se pudo conectar con el servidor. Revisa tu conexión a internet e inténtalo de nuevo.'
-    );
-  }
-
-  let data = null;
-
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
-
-  if (!response.ok) {
-    throw new ApiError(
-      data?.message || `El servidor respondió con el error ${response.status}.`,
-      response.status
-    );
-  }
-
-  return data;
 }
 
 /* =========================================================
@@ -142,44 +103,6 @@ export function resetPasswordRequest({ token, nueva }) {
   return backendRequest('/auth/restablecer', {
     method: 'POST',
     body: JSON.stringify({ token, nueva }),
-  });
-}
-
-/* =========================================================
-   ALUMNOS (Usuarios de DummyJSON)
-   ========================================================= */
-
-// Obtener todos los usuarios
-export async function fetchAllUsers(signal) {
-  const data = await request(
-    `/users?limit=0&select=${USER_FIELDS}`,
-    { signal }
-  );
-
-  return data.users;
-}
-
-// Crear usuario
-export function createUserRequest(payload) {
-  return request('/users/add', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-}
-
-// Actualizar usuario
-export function updateUserRequest(id, payload) {
-  return request(`/users/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-  });
-}
-
-
-// Eliminar usuario
-export function deleteUserRequest(id) {
-  return request(`/users/${id}`, {
-    method: 'DELETE',
   });
 }
 

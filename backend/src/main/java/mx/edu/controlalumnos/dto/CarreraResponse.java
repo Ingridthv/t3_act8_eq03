@@ -9,5 +9,6 @@ public record CarreraResponse(
         String nombre,
         Short duracionSemestres,
         UUID coordinadorId,
-        boolean activa
+        boolean activa,
+        long alumnos
 ) {}

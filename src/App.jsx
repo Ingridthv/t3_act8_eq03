@@ -60,6 +60,7 @@ export default function App() {
         <Route path="/alumnos" element={<UsersPage />} />
         <Route path="/inscripciones" element={<EntityPage key="inscripciones" entity="inscripciones" />} />
         <Route path="/materias" element={<EntityPage key="materias" entity="materias" />} />
+        <Route path="/grupos" element={<EntityPage key="grupos" entity="grupos" />} />
         <Route path="/calificaciones" element={<EntityPage key="calificaciones" entity="calificaciones" />} />
         <Route path="/periodos" element={<EntityPage key="periodos" entity="periodos" />} />
         <Route path="/reportes" element={<ReportesPage />} />

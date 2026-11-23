@@ -8,6 +8,7 @@ import mx.edu.controlalumnos.exception.RecursoNoEncontradoException;
 import mx.edu.controlalumnos.model.Carrera;
 import mx.edu.controlalumnos.repository.CarreraRepository;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CarreraService {
 
     private final CarreraRepository repo;
+    private final JdbcTemplate jdbc;
 
-    public CarreraService(CarreraRepository repo) {
+    public CarreraService(CarreraRepository repo, JdbcTemplate jdbc) {
         this.repo = repo;
+        this.jdbc = jdbc;
     }
 
         // lista una pagina de carreras. la busqueda y los filtros se hacen en la base de datos
@@ -99,7 +102,10 @@ public class CarreraService {
 
     // convierte la entidad en el dto que se devuelve
     private CarreraResponse aRespuesta(Carrera c) {
+        // alumnos activos de la carrera, contados en la base de datos
+        Long alumnos = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM alumnos WHERE carrera_id = ? AND estatus = 'activo'", Long.class, c.getId());
         return new CarreraResponse(c.getId(), c.getClave(), c.getNombre(),
-                c.getDuracionSemestres(), c.getCoordinadorId(), c.isActiva());
+                c.getDuracionSemestres(), c.getCoordinadorId(), c.isActiva(), alumnos == null ? 0 : alumnos);
     }
 }

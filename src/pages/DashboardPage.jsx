@@ -1,12 +1,12 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, UserCheck, Users } from 'lucide-react';
 import ErrorState from '../components/ui/ErrorState.jsx';
 import LoadingState from '../components/ui/LoadingState.jsx';
 import UsersTable from '../components/users/UsersTable.jsx';
-import { useUsers } from '../context/UsersContext.jsx';
-
-const RECENT_COUNT = 5;
+import { useServerList } from '../hooks/useServerList.js';
+import { resumen } from '../services/adminApi.js';
+import { aFila } from '../services/alumnosApi.js';
 
 function StatCard({ icon: Icon, label, value }) {
   return (
@@ -23,39 +23,34 @@ function StatCard({ icon: Icon, label, value }) {
 }
 
 export default function DashboardPage() {
-  const { users, loading, error, reload } = useUsers();
   const navigate = useNavigate();
+
+  // totales, promedio y alumnos recientes: todo lo calcula la base de datos
+  const fetcher = useCallback(() => resumen(), []);
+  const { data, loading, error, reload } = useServerList(fetcher, {});
 
   // Editar y eliminar se hacen en la pantalla Alumnos, que ya trae los diálogos de confirmación.
   const goToAction = (action, user) => navigate(`/alumnos?${action}=${user.id}`);
 
-  const stats = useMemo(() => {
-    const graded = users.filter((user) => Number(user.average) > 0);
-    const totalAverage = graded.reduce((sum, user) => sum + Number(user.average), 0);
-    return {
-      total: users.length,
-      active: users.filter((user) => user.status === 'Activo').length,
-      average: graded.length ? (totalAverage / graded.length).toFixed(1) : '0',
-    };
-  }, [users]);
-
-  if (loading) return <LoadingState message="Cargando resumen..." />;
+  if (loading && !data) return <LoadingState message="Cargando resumen..." />;
   if (error) return <ErrorState message={error} onRetry={reload} />;
+
+  const recientes = (data?.recientes ?? []).map(aFila);
 
   return (
     <div className="page">
       <h2 className="page__title">Resumen general</h2>
 
       <section className="stat-grid" aria-label="Estadísticas">
-        <StatCard icon={Users} label="Total de alumnos" value={stats.total} />
-        <StatCard icon={UserCheck} label="Alumnos activos" value={stats.active} />
-        <StatCard icon={TrendingUp} label="Promedio general" value={stats.average} />
+        <StatCard icon={Users} label="Total de alumnos" value={data.total} />
+        <StatCard icon={UserCheck} label="Alumnos activos" value={data.activos} />
+        <StatCard icon={TrendingUp} label="Promedio general" value={data.promedio == null ? '—' : Number(data.promedio).toFixed(1)} />
       </section>
 
       <section className="card">
         <h3 className="card__title">Alumnos recientes</h3>
         <UsersTable
-          users={users.slice(0, RECENT_COUNT)}
+          users={recientes}
           onEdit={(user) => goToAction('edit', user)}
           onDelete={(user) => goToAction('delete', user)}
         />

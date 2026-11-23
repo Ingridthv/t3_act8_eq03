@@ -21,6 +21,7 @@ const aFila = (c) => ({
   clave: c.clave,
   nombre: c.nombre,
   duracion: `${c.duracionSemestres} semestres`,
+  alumnos: c.alumnos ?? 0,
   activa: c.activa,
 });
 

@@ -92,13 +92,8 @@ public class DocenteService {
                    FROM cargas_academicas ca
                   WHERE ca.grupo_id = g.id) AS alumnos,
 
-                -- carrera(s) de los alumnos del grupo
-                (SELECT string_agg(DISTINCT c.nombre, ', ')
-                   FROM cargas_academicas ca
-                   JOIN inscripciones i ON i.id = ca.inscripcion_id
-                   JOIN alumnos a ON a.id = i.alumno_id
-                   JOIN carreras c ON c.id = a.carrera_id
-                  WHERE ca.grupo_id = g.id) AS carrera,
+                -- carrera de la materia del grupo
+                (SELECT c.nombre FROM carreras c WHERE c.id = m.carrera_id) AS carrera,
 
                 -- alumnos sin calificación final
                 (SELECT COUNT(*)
@@ -184,11 +179,7 @@ public class DocenteService {
         }
         if (carrera != null && !carrera.isBlank()) {
             where.append("""
-                 AND EXISTS (SELECT 1 FROM cargas_academicas ca
-                               JOIN inscripciones i ON i.id = ca.inscripcion_id
-                               JOIN alumnos a ON a.id = i.alumno_id
-                               JOIN carreras c ON c.id = a.carrera_id
-                              WHERE ca.grupo_id = g.id AND c.nombre = ?)""");
+                 AND EXISTS (SELECT 1 FROM carreras c WHERE c.id = m.carrera_id AND c.nombre = ?)""");
             args.add(carrera.trim());
         }
 
@@ -206,12 +197,7 @@ public class DocenteService {
                    m.clave AS clave_materia, m.nombre AS materia,
                    p.nombre AS periodo, p.id AS periodo_id, p.es_actual AS periodo_actual,
                    (SELECT COUNT(*) FROM cargas_academicas ca WHERE ca.grupo_id = g.id) AS alumnos,
-                   (SELECT string_agg(DISTINCT c.nombre, ', ')
-                      FROM cargas_academicas ca
-                      JOIN inscripciones i ON i.id = ca.inscripcion_id
-                      JOIN alumnos a ON a.id = i.alumno_id
-                      JOIN carreras c ON c.id = a.carrera_id
-                     WHERE ca.grupo_id = g.id) AS carrera,
+                   (SELECT c.nombre FROM carreras c WHERE c.id = m.carrera_id) AS carrera,
                    (SELECT CASE
                              WHEN COUNT(*) = 0 THEN NULL
                              WHEN COUNT(*) FILTER (WHERE cal."final" IS NULL) = 0 THEN 'Completa'
@@ -242,10 +228,8 @@ public class DocenteService {
         List<String> carreras = jdbc.queryForList("""
             SELECT DISTINCT c.nombre
               FROM grupos g
-              JOIN cargas_academicas ca ON ca.grupo_id = g.id
-              JOIN inscripciones i ON i.id = ca.inscripcion_id
-              JOIN alumnos a ON a.id = i.alumno_id
-              JOIN carreras c ON c.id = a.carrera_id
+              JOIN materias m ON m.id = g.materia_id
+              JOIN carreras c ON c.id = m.carrera_id
              WHERE g.docente_id = ?
              ORDER BY c.nombre
             """, String.class, docenteId);

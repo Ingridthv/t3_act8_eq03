@@ -14,7 +14,7 @@ function StudentPhoto({ user }) {
   const fullName = getFullName(user);
 
   // Utilizar el ID para asignar una fotografia estable.
-  const studentId = Number(user.id);
+  const studentId = Number(user.photoSeed ?? user.id);
 
   // El genero de demostracion se asigna en users.js
   const isFemale = user.demoGender === 'female';

@@ -1,12 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle2, ChevronDown, TrendingUp, Users } from 'lucide-react';
 import ErrorState from '../components/ui/ErrorState.jsx';
 import LoadingState from '../components/ui/LoadingState.jsx';
 import StatCard from '../components/ui/StatCard.jsx';
-import { useUsers } from '../context/UsersContext.jsx';
 import { useListParams, useServerList } from '../hooks/useServerList.js';
-import { getReporte } from '../services/academicApi.js';
-import { PERIODOS } from '../utils/academico.js';
+import { options as loadOptions, reporte } from '../services/adminApi.js';
 
 const TIPOS = [
   { id: 'todos', label: 'Todos los estudiantes' },
@@ -52,16 +50,15 @@ function VBars({ rows }) {
 }
 
 export default function ReportesPage() {
-  const { users, loading: loadingUsers, error: usersError, reload: reloadUsers } = useUsers();
-  const ctx = useMemo(() => ({ users }), [users]);
+  const [periodos, setPeriodos] = useState([]);
+  useEffect(() => {
+    loadOptions('periodos').then(setPeriodos).catch(() => {});
+  }, []);
   const [params, setParams] = useListParams(['tipo', 'periodo'], { tipo: 'todos' });
   const tipo = params.tipo === 'actuales' ? 'actuales' : 'todos';
 
-  const fetcher = useCallback((p) => getReporte(ctx, p), [ctx]);
+  const fetcher = useCallback((p) => reporte(p), []);
   const { data, loading, error, reload } = useServerList(fetcher, { tipo, periodo: params.periodo });
-
-  if (loadingUsers) return <LoadingState message="Cargando reportes..." />;
-  if (usersError) return <ErrorState message={usersError} onRetry={reloadUsers} />;
 
   return (
     <div className="page">
@@ -82,7 +79,7 @@ export default function ReportesPage() {
           <select className={`field__input field__select${params.periodo ? '' : ' field__select--empty'}`}
             aria-label="Filtrar por periodo" value={params.periodo} onChange={(e) => setParams({ periodo: e.target.value })}>
             <option value="">Periodo</option>
-            {PERIODOS.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            {periodos.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
           <ChevronDown size={20} className="field__icon field__icon--end" aria-hidden="true" />
         </div>

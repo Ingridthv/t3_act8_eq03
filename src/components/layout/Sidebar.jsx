@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
-  Award, BarChart3, BookOpen, CalendarDays, ClipboardList, GraduationCap, Home, Layers, LogOut, Settings, ShieldCheck, UserCheck, Users,
+  Award, BarChart3, BookOpen, CalendarDays, ClipboardList, GraduationCap, Home, Layers, ListChecks, LogOut, Settings, ShieldCheck, UserCheck, Users,
 } from 'lucide-react';
 
 // Mismo orden que el menú del diseño de Figma (administrador).
@@ -9,6 +9,7 @@ export const NAV_ITEMS = [
   { to: '/alumnos', label: 'Alumnos', icon: Users },
   { to: '/inscripciones', label: 'Inscripciones', icon: ClipboardList },
   { to: '/materias', label: 'Materias', icon: BookOpen },
+  { to: '/grupos', label: 'Grupos', icon: ListChecks },
   { to: '/calificaciones', label: 'Calificaciones', icon: Award },
   { to: '/periodos', label: 'Periodos', icon: CalendarDays },
   { to: '/reportes', label: 'Reportes', icon: BarChart3 },

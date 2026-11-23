@@ -33,16 +33,15 @@ Lo que incluye:
 - **Inicio:** resumen general con el total de alumnos, alumnos activos y promedio general, además de la lista de alumnos recientes.
 - **Alumnos:** tabla con búsqueda por nombre o matrícula y filtros por carrera, semestre y estatus, además de paginación.
 - **Carga y errores:** indicador de "cargando" mientras se obtienen los datos y mensaje de error con opción de reintentar si la petición falla.
-- **Agregar, editar y eliminar:** cada acción hace primero la petición real a la API (POST, PUT, DELETE) y después refleja el cambio en el estado local para que la tabla se actualice. Editar y eliminar piden confirmación antes de ejecutarse.
+- **Agregar, editar y eliminar:** cada acción hace la petición real al backend (POST, PUT, DELETE) y después se vuelve a consultar la lista a la base de datos. Editar y eliminar piden confirmación antes de ejecutarse.
 
-## API de la tabla de datos
-**DummyJSON usuarios** (`https://dummyjson.com/users`), usados como alumnos. Como la API no incluye datos académicos, la matrícula, la carrera, el semestre, el promedio y el estatus se generan a partir del id de cada usuario.
+## Origen de los datos
+Todos los datos de las pantallas (alumnos, docentes, materias, grupos, periodos, inscripciones, calificaciones, usuarios y reportes) vienen del **backend propio (Spring Boot + PostgreSQL)**, con paginación, búsqueda y filtros en el servidor. No se usan datos ficticios: si la base de datos no tiene registros, las pantallas se muestran vacías.
 
 ## APIs de validación y complementarias
 - **Disify:** verifica que el correo sea válido y no desechable (formulario de alumnos).
 - **Zippopotam.us:** del código postal obtiene el estado.
 - **Have I Been Pwned (Pwned Passwords):** avisa si la contraseña apareció en filtraciones.
-- **DiceBear:** foto de los alumnos creados desde la app.
 - **Random User:** fotografías de los alumnos.
 
 ## Fotografías de los alumnos

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { BookOpen, Pencil, Trash2 } from 'lucide-react';
 import EntityForm from '../components/academico/EntityForm.jsx';
 import InscripcionForm from '../components/academico/InscripcionForm.jsx';
+import MateriasInscripcionModal from '../components/academico/MateriasInscripcionModal.jsx';
 import Alert from '../components/ui/Alert.jsx';
 import Avatar from '../components/ui/Avatar.jsx';
 import ConfirmDialog from '../components/ui/ConfirmDialog.jsx';
@@ -10,7 +11,6 @@ import ListFilters from '../components/ui/ListFilters.jsx';
 import LoadingState from '../components/ui/LoadingState.jsx';
 import Modal from '../components/ui/Modal.jsx';
 import Pagination from '../components/users/Pagination.jsx';
-import { useUsers } from '../context/UsersContext.jsx';
 import { useListParams, useServerList } from '../hooks/useServerList.js';
 import { create, getOptions, list, remove, update } from '../services/academicApi.js';
 import { initials, PAGE_SIZE } from '../utils/academico.js';
@@ -34,8 +34,8 @@ function Cell({ col, row }) {
 // + modales de alta/edición/eliminación. Cada catálogo solo aporta su configuración.
 export default function EntityPage({ entity }) {
   const cfg = ENTITIES[entity];
-  const { users, loading: loadingUsers, error: usersError, reload: reloadUsers, addUser } = useUsers();
-  const ctx = useMemo(() => ({ users }), [users]);
+  // todo viene de la base de datos: ya no se necesita la lista de alumnos de DummyJSON
+  const ctx = useMemo(() => ({}), []);
 
   const filterNames = cfg.filters.map((f) => f.name);
   const [params, setParams] = useListParams(['q', ...filterNames], cfg.defaults);
@@ -46,13 +46,13 @@ export default function EntityPage({ entity }) {
   const [options, setOptions] = useState({});
   const [optionsTick, setOptionsTick] = useState(0);
   useEffect(() => {
-    if (loadingUsers) return;
     const kinds = new Set([...cfg.filters, ...cfg.fields].map((f) => f.options).filter((o) => typeof o === 'string'));
     Promise.all([...kinds].map(async (k) => [k, await getOptions(k, ctx)])).then((pairs) => setOptions(Object.fromEntries(pairs)));
-  }, [cfg, ctx, loadingUsers, optionsTick]);
+  }, [cfg, ctx, optionsTick]);
 
   const [formModal, setFormModal] = useState(null); // { mode, row }
   const [toDelete, setToDelete] = useState(null);
+  const [materiasRow, setMateriasRow] = useState(null); // inscripción cuyas materias se están asignando
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
   const [notice, setNotice] = useState(null);
@@ -85,25 +85,14 @@ export default function EntityPage({ entity }) {
     }
   };
 
-  // Inscribir alumno: da de alta al alumno (si es nuevo) y crea su inscripción.
-  const handleInscripcion = (v) => {
-    if (v.modo === 'existente') {
-      return run(
-        () => create('inscripciones', ctx, { alumnoId: Number(v.alumnoId), periodo: v.periodo, fecha: v.fecha, estatus: 'Inscrito' }),
-        'Alumno inscrito correctamente.'
-      );
-    }
-    const words = v.nombre.trim().split(/\s+/);
-    const split = words.length >= 4 ? 2 : 1; // "María Fernanda Soto Pérez" -> nombre de 2 palabras
-    return run(async () => {
-      const created = await addUser({
-        firstName: words.slice(0, split).join(' '), lastName: words.slice(split).join(' '),
-        email: `${v.matricula}@escuela.edu.mx`, enrollment: v.matricula, career: v.carrera, semester: v.semestre,
-        average: '0', status: 'Activo', postalCode: '', state: '',
-      });
-      await create('inscripciones', { users: [created, ...users] }, { alumnoId: created.id, periodo: v.periodo, fecha: v.fecha, estatus: 'Inscrito' });
-    }, 'Alumno inscrito. Se enviarán sus credenciales al correo institucional.');
-  };
+  // Inscribir alumno: si es nuevo, el servidor lo da de alta (matrícula y cuenta) y lo inscribe en un solo paso.
+  const handleInscripcion = (v) =>
+    run(
+      () => create('inscripciones', ctx, v),
+      v.modo === 'nuevo'
+        ? 'Alumno inscrito. Se enviaron sus credenciales a su correo de contacto.'
+        : 'Alumno inscrito correctamente.'
+    );
 
   const handleSubmit = (values) => {
     const payload = cfg.toPayload ? cfg.toPayload(values) : defaultToPayload(cfg, values);
@@ -117,9 +106,6 @@ export default function EntityPage({ entity }) {
     name: f.name, label: f.label, wide: f.wide, value: params[f.name], options: resolved(f), defaultValue: cfg.defaults?.[f.name] ?? '',
   }));
   const clearAll = () => setParams({ q: '', ...Object.fromEntries(filterNames.map((n) => [n, cfg.defaults?.[n] ?? ''])) });
-
-  if (loadingUsers) return <LoadingState message="Cargando..." />;
-  if (usersError) return <ErrorState message={usersError} onRetry={reloadUsers} />;
 
   // Ancho de columnas: las que llevan nombre/correo reciben más espacio.
   const weights = [...cfg.columns.map((c) => (c.avatar ? 2.4 : ['carrera', 'correo', 'docente', 'coordinador', 'materia'].includes(c.key) ? 1.7 : c.tag || c.format === 'periodo' ? 1.35 : c.strong ? 1.7 : 1)), 1];
@@ -177,6 +163,12 @@ export default function EntityPage({ entity }) {
                         ))}
                         <td>
                           <div className="data-table__actions">
+                            {entity === 'inscripciones' && (
+                              <button type="button" className="icon-button" aria-label={`Materias de ${cfg.rowLabel(row)}`} title="Asignar materias"
+                                onClick={() => setMateriasRow(row)}>
+                                <BookOpen size={16} />
+                              </button>
+                            )}
                             <button type="button" className="icon-button" aria-label={`Editar ${cfg.rowLabel(row)}`}
                               onClick={() => { setActionError(''); setFormModal({ mode: 'edit', row }); }}>
                               <Pencil size={16} />
@@ -199,10 +191,14 @@ export default function EntityPage({ entity }) {
         )}
       </section>
 
+      {materiasRow && (
+        <MateriasInscripcionModal row={materiasRow} onClose={() => { setMateriasRow(null); reload(); }} />
+      )}
+
       {formModal && (
         <Modal title={title} subtitle={subtitle} onClose={closeModals} closeDisabled={busy}>
           {entity === 'inscripciones' && formModal.mode === 'create' ? (
-            <InscripcionForm options={options} users={users} submitting={busy} serverError={actionError}
+            <InscripcionForm options={options} submitting={busy} serverError={actionError}
               onSubmit={handleInscripcion} onCancel={closeModals} />
           ) : (
           <EntityForm

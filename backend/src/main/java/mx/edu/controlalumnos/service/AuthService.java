@@ -80,6 +80,8 @@ public class AuthService {
             return jdbc.queryForObject(
                     "SELECT nombre || ' ' || apellido_paterno FROM alumnos WHERE id = ?", String.class, u.getAlumnoId());
         }
-        return "Administrador";
+        // administradores: el nombre se guarda en la propia cuenta
+        String nombre = jdbc.queryForObject("SELECT nombre FROM usuarios WHERE id = ?", String.class, u.getId());
+        return nombre != null && !nombre.isBlank() ? nombre : "Administrador";
     }
 }

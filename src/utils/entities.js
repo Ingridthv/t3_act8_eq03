@@ -1,7 +1,7 @@
 // Configuración de cada catálogo del administrador (columnas, filtros y formulario).
 // Una sola pantalla genérica (EntityPage) los dibuja todos, igual que en Figma.
-import { CAREERS, SEMESTERS } from './users.js';
-import { formatDate, PERIODO_ACTUAL, periodoCorto } from './academico.js';
+import { SEMESTERS } from './users.js';
+import { formatDate, periodoCorto } from './academico.js';
 
 const strings = (arr) => arr.map((v) => ({ value: String(v), label: String(v) }));
 
@@ -82,30 +82,71 @@ export const ENTITIES = {
     editTitle: ['Editar materia', 'Modifica los datos de la materia'],
     saveLabel: 'Guardar materia',
     searchPlaceholder: 'Buscar por clave o materia',
-    search: ['clave', 'nombre'],
     rowLabel: (r) => r.nombre,
-    unique: [['clave', 'Ya existe una materia con esa clave.']],
+    createNote: 'La clave es única. Después de crear la materia, asigna su docente y horario en el módulo Grupos (una materia puede tener varios grupos).',
     columns: [
       { key: 'clave', label: 'Clave' },
       { key: 'nombre', label: 'Materia', avatar: true, strong: true },
-      { key: 'docente', label: 'Docente' },
+      { key: 'carrera', label: 'Carrera' },
+      { key: 'semestre', label: 'Semestre' },
       { key: 'creditos', label: 'Créditos' },
-      { key: 'grupo', label: 'Grupo' },
+      { key: 'grupos', label: 'Grupos' },
       { key: 'estatus', label: 'Estatus', tag: true },
     ],
     filters: [
-      { name: 'carrera', label: 'Carrera', wide: true, options: strings(CAREERS) },
+      { name: 'carrera', label: 'Carrera', wide: true, options: 'carreras' },
       { name: 'semestre', label: 'Semestre', options: SEMESTERS.map((s) => ({ value: String(s), label: `Semestre ${s}` })) },
       { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Activa', 'Inactiva']) },
     ],
     fields: [
       { name: 'clave', label: 'Clave', half: true, placeholder: 'Ej. SIS-101', upper: true, rules: { required: true, pattern: /^[A-Za-z]{3}-\d{3}$/, patternMsg: 'Usa el formato ABC-123 (3 letras, guion y 3 números).' }, requiredMsg: 'Escribe la clave.' },
       { name: 'creditos', label: 'Créditos', type: 'number', half: true, placeholder: 'Ej. 8', rules: { required: true, integer: true, min: 1, max: 12, rangeMsg: 'Los créditos deben estar entre 1 y 12.' }, requiredMsg: 'Escribe los créditos.' },
-      { name: 'nombre', label: 'Nombre de la materia', placeholder: 'Ej. Programación Web', rules: { required: true, minLen: 3, maxLen: 60 }, requiredMsg: 'Escribe el nombre de la materia.' },
-      { name: 'docente', label: 'Docente', type: 'select', options: 'docentes', placeholder: 'Selecciona un docente', rules: { required: true }, requiredMsg: 'Selecciona un docente.' },
-      { name: 'carrera', label: 'Carrera', type: 'select', half: true, options: strings(CAREERS), placeholder: 'Selecciona una carrera', rules: { required: true }, requiredMsg: 'Selecciona una carrera.' },
-      { name: 'grupo', label: 'Grupo', type: 'select', half: true, options: strings(['A', 'B', 'C', 'D']), placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona el grupo.' },
+      { name: 'nombre', label: 'Nombre de la materia', placeholder: 'Ej. Programación Web', rules: { required: true, minLen: 3, maxLen: 100 }, requiredMsg: 'Escribe el nombre de la materia.' },
+      { name: 'carreraId', label: 'Carrera', type: 'select', options: 'carreras', placeholder: 'Selecciona una carrera', rules: { required: true }, requiredMsg: 'Selecciona una carrera.' },
+      { name: 'semestre', label: 'Semestre', type: 'number', half: true, placeholder: 'Ej. 3', rules: { required: true, integer: true, min: 1, max: 14, rangeMsg: 'El semestre debe estar entre 1 y 14.' }, requiredMsg: 'Escribe el semestre.' },
     ],
+    toForm: (row) => ({
+      clave: row.clave, creditos: String(row.creditos), nombre: row.nombre,
+      carreraId: row.carreraId, semestre: String(row.semestre),
+    }),
+  },
+
+  grupos: {
+    singular: 'grupo',
+    title: 'Grupos y docentes',
+    noun: 'grupos',
+    newLabel: '+ Nuevo grupo',
+    createTitle: ['Nuevo grupo', 'Asigna una materia a un docente, con su grupo y horario'],
+    editTitle: ['Editar grupo', 'Cambia el docente, el horario o el cupo del grupo'],
+    saveLabel: 'Guardar grupo',
+    searchPlaceholder: 'Buscar por clave, materia o docente',
+    rowLabel: (r) => `${r.clave} grupo ${r.grupo}`,
+    createNote: 'Una misma materia puede tener varios grupos con distinto docente u horario. Al inscribir, cada alumno queda en un solo grupo por materia (el de menor ocupación).',
+    defaults: { periodo: 'actual' },
+    columns: [
+      { key: 'clave', label: 'Clave' },
+      { key: 'materia', label: 'Materia', avatar: true, strong: true },
+      { key: 'grupo', label: 'Grupo' },
+      { key: 'docente', label: 'Docente' },
+      { key: 'horario', label: 'Horario' },
+      { key: 'alumnos', label: 'Alumnos' },
+      { key: 'periodo', label: 'Periodo', format: 'periodo' },
+    ],
+    filters: [
+      { name: 'carrera', label: 'Carrera', wide: true, options: 'carreras' },
+      { name: 'docente', label: 'Docente', wide: true, options: 'docentes' },
+      { name: 'periodo', label: 'Periodo', wide: true, options: 'periodosFiltro' },
+    ],
+    fields: [
+      { name: 'materiaId', label: 'Materia', type: 'select', options: 'materias', placeholder: 'Selecciona una materia', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona una materia.' },
+      { name: 'docenteId', label: 'Docente', type: 'select', options: 'docentes', placeholder: 'Selecciona un docente', rules: { required: true }, requiredMsg: 'Selecciona un docente.' },
+      { name: 'grupo', label: 'Grupo', type: 'select', half: true, lockOnEdit: true, options: strings(['A', 'B', 'C', 'D', 'E']), placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona el grupo.' },
+      { name: 'cupo', label: 'Cupo', type: 'number', half: true, default: '30', placeholder: 'Ej. 30', rules: { required: true, integer: true, min: 1, max: 100, rangeMsg: 'El cupo debe estar entre 1 y 100.' }, requiredMsg: 'Escribe el cupo.' },
+      { name: 'horario', label: 'Horario (opcional)', placeholder: 'Ej. Lun y Mié 8:00-10:00', rules: { maxLen: 60 } },
+    ],
+    toForm: (row) => ({
+      materiaId: row.materiaId, docenteId: row.docenteId, grupo: row.grupo, cupo: String(row.cupo ?? 30), horario: row.horario ?? '',
+    }),
   },
 
   calificaciones: {
@@ -113,13 +154,12 @@ export const ENTITIES = {
     title: 'Calificaciones del periodo',
     noun: 'calificaciones',
     newLabel: '+ Capturar calificación',
-    createTitle: ['Capturar calificación', 'Registra la calificación de un alumno en una materia'],
+    createTitle: ['Capturar calificación', 'Registra la calificación de un alumno en una materia del periodo actual'],
     editTitle: ['Editar calificación', 'Modifica la calificación registrada'],
     saveLabel: 'Guardar calificación',
     searchPlaceholder: 'Buscar por alumno o matrícula',
-    search: ['alumno', 'matricula'],
     rowLabel: (r) => `${r.alumno} en ${r.materia}`,
-    defaults: { periodo: PERIODO_ACTUAL },
+    defaults: { periodo: 'actual' },
     columns: [
       { key: 'matricula', label: 'Matrícula' },
       { key: 'alumno', label: 'Alumno', avatar: true, strong: true },
@@ -130,23 +170,26 @@ export const ENTITIES = {
       { key: 'estatus', label: 'Estatus', tag: true },
     ],
     filters: [
-      { name: 'materia', label: 'Materia', wide: true, options: 'materias', field: 'materiaId' },
+      { name: 'materia', label: 'Materia', wide: true, options: 'materias' },
       {
         name: 'parcial', label: 'Parcial',
         options: [{ value: 'aprobatorio', label: 'Aprobatorio (6 o más)' }, { value: 'reprobatorio', label: 'Reprobatorio (menos de 6)' }],
-        match: (row, v) => row.parcial !== null && (v === 'aprobatorio' ? row.parcial >= 6 : row.parcial < 6),
       },
-      { name: 'periodo', label: 'Periodo', wide: true, options: 'periodos' },
+      { name: 'periodo', label: 'Periodo', wide: true, options: 'periodosFiltro' },
       { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Aprobado', 'Reprobado', 'Pendiente']) },
     ],
     fields: [
       { name: 'alumnoId', label: 'Alumno', type: 'select', options: 'alumnos', placeholder: 'Selecciona un alumno', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona un alumno.' },
       { name: 'materiaId', label: 'Materia', type: 'select', options: 'materias', placeholder: 'Selecciona una materia', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona una materia.' },
-      { name: 'tipo', label: 'Parcial', type: 'select', half: true, options: strings(['Parcial 1', 'Final']), placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona qué calificación capturas.' },
+      { name: 'tipo', label: 'Calificación a capturar', type: 'select', half: true, options: strings(['Parcial 1', 'Final']), placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona qué calificación capturas.' },
       { name: 'calificacion', label: 'Calificación', type: 'number', half: true, placeholder: 'Ej. 9.0', rules: { required: true, min: 0, max: 10, decimals: 1, rangeMsg: 'La calificación debe estar entre 0 y 10.' }, requiredMsg: 'Escribe la calificación.' },
     ],
-    toForm: (row) => ({ alumnoId: String(row.alumnoId), materiaId: String(row.materiaId), tipo: 'Parcial 1', calificacion: row.parcial === null ? '' : String(row.parcial) }),
-    toPayload: (v) => ({ alumnoId: Number(v.alumnoId), materiaId: Number(v.materiaId), tipo: v.tipo, calificacion: Number(v.calificacion) }),
+    toForm: (row) => ({
+      alumnoId: row.alumnoId, materiaId: row.materiaId,
+      tipo: row.parcial === null && row.final !== null ? 'Final' : 'Parcial 1',
+      calificacion: String(row.parcial === null && row.final !== null ? row.final : (row.parcial ?? '')),
+    }),
+    toPayload: (v) => v,
   },
 
   inscripciones: {
@@ -158,29 +201,30 @@ export const ENTITIES = {
     editTitle: ['Editar inscripción', 'Modifica los datos de la inscripción'],
     saveLabel: 'Guardar inscripción',
     searchPlaceholder: 'Buscar por alumno o matrícula',
-    search: ['alumno', 'matricula'],
     rowLabel: (r) => r.alumno,
-    defaults: { periodo: PERIODO_ACTUAL },
+    defaults: { periodo: 'actual' },
     columns: [
       { key: 'matricula', label: 'Matrícula' },
       { key: 'alumno', label: 'Alumno', avatar: true, strong: true },
       { key: 'carrera', label: 'Carrera' },
       { key: 'periodo', label: 'Periodo', format: 'periodo' },
       { key: 'fecha', label: 'Inscripción', format: 'date' },
+      { key: 'materias', label: 'Materias' },
       { key: 'estatus', label: 'Estatus', tag: true },
     ],
     filters: [
-      { name: 'carrera', label: 'Carrera', wide: true, options: strings(CAREERS) },
-      { name: 'periodo', label: 'Periodo', wide: true, options: 'periodos' },
+      { name: 'carrera', label: 'Carrera', wide: true, options: 'carreras' },
+      { name: 'periodo', label: 'Periodo', wide: true, options: 'periodosFiltro' },
       { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Inscrito', 'Baja']) },
     ],
     fields: [
       { name: 'alumnoId', label: 'Alumno', type: 'select', options: 'alumnos', placeholder: 'Selecciona un alumno', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona un alumno.' },
-      { name: 'periodo', label: 'Periodo', type: 'select', options: 'periodos', placeholder: 'Selecciona un periodo', rules: { required: true }, requiredMsg: 'Selecciona un periodo.' },
+      { name: 'periodo', label: 'Periodo', type: 'select', options: 'periodos', placeholder: 'Selecciona un periodo', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona un periodo.' },
       { name: 'fecha', label: 'Fecha de inscripción', type: 'date', half: true, rules: { required: true }, requiredMsg: 'Selecciona la fecha.' },
       { name: 'estatus', label: 'Estatus', type: 'select', half: true, options: ESTATUS_REGISTRO(['Inscrito', 'Baja']), placeholder: 'Selecciona', default: 'Inscrito', rules: { required: true } },
     ],
-    toPayload: (v) => ({ alumnoId: Number(v.alumnoId), periodo: v.periodo, fecha: v.fecha, estatus: v.estatus }),
+    toForm: (row) => ({ alumnoId: row.alumnoId, periodo: String(row.periodoId), fecha: String(row.fecha ?? ''), estatus: row.estatus }),
+    toPayload: (v) => v,
   },
 
   periodos: {
@@ -192,9 +236,7 @@ export const ENTITIES = {
     editTitle: ['Editar periodo', 'Modifica los datos del periodo'],
     saveLabel: 'Guardar periodo',
     searchPlaceholder: 'Buscar por periodo',
-    search: ['nombre'],
     rowLabel: (r) => r.nombre,
-    unique: [['nombre', 'Ya existe un periodo con ese nombre.']],
     columns: [
       { key: 'nombre', label: 'Periodo', strong: true },
       { key: 'inicio', label: 'Fecha de inicio', format: 'date' },
@@ -203,17 +245,19 @@ export const ENTITIES = {
       { key: 'estatus', label: 'Estatus', tag: true },
     ],
     filters: [
-      { name: 'anio', label: 'Año', options: strings([2025, 2026]) },
+      { name: 'anio', label: 'Año', options: 'anios' },
       { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Actual', 'Cerrado']) },
     ],
     fields: [
-      { name: 'nombre', label: 'Nombre del periodo', placeholder: 'Ej. Enero-Julio 2027', rules: { required: true, minLen: 5, maxLen: 40 }, requiredMsg: 'Escribe el nombre del periodo.' },
+      { name: 'tipo', label: 'Tipo de periodo', type: 'select', half: true, options: [{ value: 'ENE-JUL', label: 'Enero-Julio' }, { value: 'AGO-DIC', label: 'Agosto-Diciembre' }], placeholder: 'Selecciona', rules: { required: true }, requiredMsg: 'Selecciona el tipo de periodo.' },
+      { name: 'anio', label: 'Año', type: 'number', half: true, placeholder: 'Ej. 2027', rules: { required: true, integer: true, min: 2000, max: 2100, rangeMsg: 'El año debe estar entre 2000 y 2100.' }, requiredMsg: 'Escribe el año.' },
       { name: 'inicio', label: 'Fecha de inicio', type: 'date', half: true, rules: { required: true }, requiredMsg: 'Selecciona la fecha de inicio.' },
       {
         name: 'fin', label: 'Fecha de fin', type: 'date', half: true,
         rules: { required: true, custom: (v, values) => (values.inicio && v <= values.inicio ? 'La fecha de fin debe ser posterior al inicio.' : '') },
         requiredMsg: 'Selecciona la fecha de fin.',
       },
+      { name: 'estatus', label: 'Estatus', type: 'select', options: ESTATUS_REGISTRO(['Actual', 'Cerrado']), placeholder: 'Selecciona', default: 'Cerrado', rules: { required: true } },
     ],
   },
 
@@ -235,8 +279,7 @@ export const ENTITIES = {
       { key: 'nombre', label: 'Carrera', strong: true },
       { key: 'duracion', label: 'Duración' },
       { key: 'alumnos', label: 'Alumnos' },
-      { key: 'coordinador', label: 'Coordinador' },
-    ],
+          ],
 
     filters: [
       {
@@ -289,26 +332,28 @@ export const ENTITIES = {
     editTitle: ['Editar docente', 'Modifica los datos del docente'],
     saveLabel: 'Guardar docente',
     searchPlaceholder: 'Buscar por nombre o clave',
-    search: ['nombre', 'clave'],
-    rowLabel: (r) => r.nombre,
-    unique: [['clave', 'Ya existe un docente con esa clave.'], ['correo', 'Ya existe un docente con ese correo.']],
+    rowLabel: (r) => r.nombreCompleto,
+    createNote: 'Al guardar, se crea su cuenta y se envían su usuario y contraseña temporal al correo de contacto. Sus materias se le asignan en el módulo Grupos.',
+    createdMessage: 'Docente creado. Se enviaron las credenciales a su correo de contacto.',
     columns: [
       { key: 'clave', label: 'Clave' },
-      { key: 'nombre', label: 'Docente', avatar: true, strong: true },
+      { key: 'nombreCompleto', label: 'Docente', avatar: true, strong: true },
       { key: 'correo', label: 'Correo' },
       { key: 'materias', label: 'Materias' },
       { key: 'estatus', label: 'Estatus', tag: true },
     ],
     filters: [
-      { name: 'carrera', label: 'Carrera', wide: true, options: strings(CAREERS) },
-      { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Activo', 'Licencia']) },
+      { name: 'carrera', label: 'Carrera', wide: true, options: 'carreras' },
+      { name: 'estatus', label: 'Estatus', options: ESTATUS_REGISTRO(['Activo', 'Licencia', 'Baja']) },
     ],
     fields: [
       { name: 'clave', label: 'Clave', half: true, upper: true, placeholder: 'Ej. DOC-019', rules: { required: true, pattern: /^[A-Za-z]{3}-\d{3}$/, patternMsg: 'Usa el formato DOC-001.' }, requiredMsg: 'Escribe la clave.' },
-      { name: 'estatus', label: 'Estatus', type: 'select', half: true, options: ESTATUS_REGISTRO(['Activo', 'Licencia']), placeholder: 'Selecciona', default: 'Activo', rules: { required: true } },
-      { name: 'nombre', label: 'Nombre completo', placeholder: 'Ej. Ricardo Salinas Ortiz', rules: { required: true, minLen: 5, maxLen: 80 }, requiredMsg: 'Escribe el nombre completo.' },
-      { name: 'correo', label: 'Correo institucional', type: 'email', placeholder: 'nombre@controlalumnos.edu', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo.' },
-      { name: 'carrera', label: 'Carrera', type: 'select', options: strings(CAREERS), placeholder: 'Selecciona una carrera', rules: { required: true }, requiredMsg: 'Selecciona una carrera.' },
+      { name: 'estatus', label: 'Estatus', type: 'select', half: true, options: ESTATUS_REGISTRO(['Activo', 'Licencia', 'Baja']), placeholder: 'Selecciona', default: 'Activo', rules: { required: true } },
+      { name: 'nombre', label: 'Nombre(s)', half: true, placeholder: 'Ej. Ricardo', rules: { required: true, minLen: 2, maxLen: 80 }, requiredMsg: 'Escribe el nombre.' },
+      { name: 'apellidos', label: 'Apellidos', half: true, placeholder: 'Ej. Salinas Ortiz', rules: { required: true, minLen: 2, maxLen: 80 }, requiredMsg: 'Escribe los apellidos.' },
+      { name: 'correo', label: 'Correo institucional (opcional, es su usuario de acceso)', type: 'email', placeholder: 'Si lo dejas vacío: clave@itoaxaca.edu.mx', rules: { email: true } },
+      { name: 'correoContacto', label: 'Correo de contacto (recibe las credenciales)', type: 'email', placeholder: 'correo.personal@gmail.com', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo de contacto.' },
+      { name: 'telefono', label: 'Celular (opcional, para SMS y WhatsApp)', placeholder: 'Ej. +525512345678', rules: { pattern: /^\+?\d{10,14}$/, patternMsg: 'Escribe de 10 a 14 dígitos, por ejemplo +525512345678.' } },
     ],
   },
 
@@ -316,16 +361,14 @@ export const ENTITIES = {
     singular: 'usuario',
     title: 'Usuarios del sistema',
     noun: 'usuarios',
-    newLabel: '+ Nuevo usuario',
-    createTitle: ['Nuevo usuario', 'Captura los datos del usuario para darlo de alta'],
+    newLabel: '+ Nuevo administrador',
+    createTitle: ['Nuevo administrador', 'Captura los datos del administrador para darlo de alta'],
     editTitle: ['Editar usuario', 'Modifica los datos del usuario'],
     saveLabel: 'Guardar usuario',
     searchPlaceholder: 'Buscar por nombre o correo',
-    search: ['nombre', 'correo'],
     rowLabel: (r) => r.nombre,
-    unique: [['correo', 'Ya existe un usuario con ese correo.']],
-    createNote: 'Al guardar, el sistema enviará al correo del usuario su usuario y una contraseña temporal.',
-    createdMessage: 'Usuario creado. Se enviarán las credenciales a su correo.',
+    createNote: 'Al guardar, el sistema enviará al correo de contacto el usuario y una contraseña temporal. Los docentes y estudiantes reciben su cuenta al darlos de alta en su módulo.',
+    createdMessage: 'Usuario creado. Se enviaron las credenciales a su correo de contacto.',
     columns: [
       { key: 'nombre', label: 'Usuario', avatar: true, strong: true },
       { key: 'correo', label: 'Correo' },
@@ -339,8 +382,9 @@ export const ENTITIES = {
     ],
     fields: [
       { name: 'nombre', label: 'Nombre completo', placeholder: 'Ej. Ana Martínez López', rules: { required: true, minLen: 5, maxLen: 80 }, requiredMsg: 'Escribe el nombre completo.' },
-      { name: 'correo', label: 'Correo institucional', type: 'email', placeholder: 'nombre@controlalumnos.edu', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo.' },
-      { name: 'rol', label: 'Rol', type: 'select', half: true, options: strings(['Administrador', 'Docente', 'Estudiante']), placeholder: 'Selecciona un rol', rules: { required: true }, requiredMsg: 'Selecciona un rol.' },
+      { name: 'correo', label: 'Correo institucional (usuario de acceso)', type: 'email', placeholder: 'nombre@escuela.edu.mx', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo.' },
+      { name: 'correoContacto', label: 'Correo de contacto (recibe las credenciales)', type: 'email', placeholder: 'correo.personal@gmail.com', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo de contacto.' },
+      { name: 'rol', label: 'Rol', type: 'select', half: true, options: strings(['Administrador', 'Docente', 'Estudiante']), placeholder: 'Selecciona un rol', default: 'Administrador', lockOnEdit: true, rules: { required: true }, requiredMsg: 'Selecciona un rol.' },
       { name: 'estatus', label: 'Estatus', type: 'select', half: true, options: ESTATUS_REGISTRO(['Activo', 'Inactivo']), placeholder: 'Selecciona', default: 'Activo', rules: { required: true } },
     ],
   },

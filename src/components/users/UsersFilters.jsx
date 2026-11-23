@@ -1,6 +1,5 @@
 import { ChevronDown, Search } from 'lucide-react';
-import { INGRESOS } from '../../utils/academico.js';
-import { CAREERS, SEMESTERS, STATUSES } from '../../utils/users.js';
+import { SEMESTERS, STATUSES } from '../../utils/users.js';
 
 function FilterSelect({ label, name, value, options, onChange }) {
   return (
@@ -12,11 +11,14 @@ function FilterSelect({ label, name, value, options, onChange }) {
         onChange={(event) => onChange(name, event.target.value)}
       >
         <option value="">{label}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {name === 'semester' ? `Semestre ${option}` : option}
-          </option>
-        ))}
+        {options.map((option) => {
+          const o = typeof option === 'object' ? option : { value: option, label: option };
+          return (
+            <option key={o.value} value={o.value}>
+              {name === 'semester' ? `Semestre ${o.label}` : o.label}
+            </option>
+          );
+        })}
       </select>
       <ChevronDown size={20} className="field__icon field__icon--end" aria-hidden="true" />
     </div>
@@ -29,6 +31,8 @@ export default function UsersFilters({
   semester,
   status,
   ingreso,
+  careers = [],
+  ingresos = [],
   onSearchChange,
   onFilterChange,
   onClear,
@@ -48,9 +52,9 @@ export default function UsersFilters({
           onChange={(event) => onSearchChange(event.target.value)}
         />
       </label>
-      <FilterSelect label="Carrera" name="career" value={career} options={CAREERS} onChange={onFilterChange} />
+      <FilterSelect label="Carrera" name="career" value={career} options={careers} onChange={onFilterChange} />
       <FilterSelect label="Semestre" name="semester" value={semester} options={SEMESTERS} onChange={onFilterChange} />
-      <FilterSelect label="Año" name="ingreso" value={ingreso} options={INGRESOS} onChange={onFilterChange} />
+      <FilterSelect label="Año" name="ingreso" value={ingreso} options={ingresos} onChange={onFilterChange} />
       <FilterSelect label="Estatus" name="status" value={status} options={STATUSES} onChange={onFilterChange} />
       <button type="button" className="btn btn--secondary btn--sm" onClick={onClear} disabled={!hasFilters}>
         Limpiar

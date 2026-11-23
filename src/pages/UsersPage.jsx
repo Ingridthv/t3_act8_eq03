@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import Alert from '../components/ui/Alert.jsx';
@@ -13,31 +13,19 @@ import UserForm from '../components/users/UserForm.jsx';
 import UsersFilters from '../components/users/UsersFilters.jsx';
 import UsersTable from '../components/users/UsersTable.jsx';
 
-import { useUsers } from '../context/UsersContext.jsx';
+import { useServerList } from '../hooks/useServerList.js';
+import * as alumnosApi from '../services/alumnosApi.js';
+import { options as loadOptions } from '../services/adminApi.js';
 
 import {
   EMPTY_USER_FORM,
   getFullName,
-  getIngreso,
   userToForm,
 } from '../utils/users.js';
 
 const NOTICE_DURATION_MS = 5000;
 
-// Cantidad fija de alumnos por pagina
-const USERS_PER_PAGE = 10;
-
 export default function UsersPage() {
-  const {
-    users,
-    loading,
-    error,
-    reload,
-    addUser,
-    editUser,
-    removeUser,
-  } = useUsers();
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [formModal, setFormModal] = useState(null);
@@ -48,15 +36,21 @@ export default function UsersPage() {
   const [actionError, setActionError] = useState('');
   const [notice, setNotice] = useState(null);
 
-  // FILTROS
+  // opciones de los selects (vienen de la base de datos)
+  const [careers, setCareers] = useState([]);
+  const [ingresos, setIngresos] = useState([]);
+
+  useEffect(() => {
+    loadOptions('carreras').then(setCareers).catch(() => {});
+    loadOptions('ingresos').then(setIngresos).catch(() => {});
+  }, []);
+
+  // FILTROS (se guardan en la URL)
   const search = searchParams.get('q') ?? '';
   const career = searchParams.get('career') ?? '';
   const semester = searchParams.get('semester') ?? '';
   const status = searchParams.get('status') ?? '';
   const ingreso = searchParams.get('ingreso') ?? '';
-
-  // PAGINACION: siempre 10 alumnos
-  const limit = USERS_PER_PAGE;
 
   const requestedPage = Math.max(
     1,
@@ -66,15 +60,10 @@ export default function UsersPage() {
   const updateParams = (patch, { replace = false } = {}) => {
     const next = new URLSearchParams(searchParams);
 
-    // Eliminar configuraciones anteriores del limite
     next.delete('limit');
 
     Object.entries(patch).forEach(([key, value]) => {
-      if (
-        value === '' ||
-        value === null ||
-        value === undefined
-      ) {
+      if (value === '' || value === null || value === undefined) {
         next.delete(key);
       } else {
         next.set(key, String(value));
@@ -84,40 +73,16 @@ export default function UsersPage() {
     setSearchParams(next, { replace });
   };
 
-  // FILTRAR ALUMNOS
-  const filteredUsers = useMemo(() => {
-    const term = search.trim().toLowerCase();
+  // El servidor busca, filtra y pagina
+  const params = { page: requestedPage, q: search, career, semester, status, ingreso };
+  const fetcher = useCallback((p) => alumnosApi.list(p), []);
+  const { data, loading, error, reload } = useServerList(fetcher, params);
 
-    return users.filter((user) => {
-      const matchesText =
-        !term ||
-        getFullName(user).toLowerCase().includes(term) ||
-        String(user.email ?? '').toLowerCase().includes(term) ||
-        String(user.enrollment).includes(term);
-
-      return (
-        matchesText &&
-        (!career || user.career === career) &&
-        (!semester || String(user.semester) === semester) &&
-        (!status || user.status === status) &&
-        (!ingreso || String(getIngreso(user)) === ingreso)
-      );
-    });
-  }, [users, search, career, semester, status, ingreso]);
-
-  // CALCULAR PAGINAS
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredUsers.length / USERS_PER_PAGE)
-  );
-
+  const pageUsers = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 1;
+  const totalItems = data?.total ?? 0;
   const page = Math.min(requestedPage, totalPages);
-
-  // MOSTRAR SOLO 10 ALUMNOS
-  const pageUsers = filteredUsers.slice(
-    (page - 1) * USERS_PER_PAGE,
-    page * USERS_PER_PAGE
-  );
+  const limit = 10;
 
   // CAMBIOS DE FILTROS
   const handleSearchChange = (value) => {
@@ -160,35 +125,26 @@ export default function UsersPage() {
     updateParams({ page: 1 });
   };
 
-  // ACCIONES DESDE INICIO
+  // ACCIONES DESDE INICIO (?edit=id / ?delete=id)
   useEffect(() => {
-    if (loading || error) return;
-
-    const editId = Number(searchParams.get('edit'));
-    const deleteId = Number(searchParams.get('delete'));
-
+    const editId = searchParams.get('edit');
+    const deleteId = searchParams.get('delete');
     if (!editId && !deleteId) return;
-
-    const target = users.find(
-      (user) => user.id === (editId || deleteId)
-    );
-
-    if (target) {
-      if (editId) {
-        setFormModal({ mode: 'edit', user: target });
-      } else {
-        setUserToDelete(target);
-      }
-    }
 
     const next = new URLSearchParams(searchParams);
     next.delete('edit');
     next.delete('delete');
-
     setSearchParams(next, { replace: true });
 
+    alumnosApi
+      .get(editId || deleteId)
+      .then((target) => {
+        if (editId) setFormModal({ mode: 'edit', user: target });
+        else setUserToDelete(target);
+      })
+      .catch((err) => setNotice({ type: 'error', text: err.message || 'No se encontró al alumno.' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, error, users, searchParams]);
+  }, [searchParams]);
 
   // AVISOS
   useEffect(() => {
@@ -214,16 +170,17 @@ export default function UsersPage() {
     setActionError('');
 
     try {
-      await addUser(values);
+      await alumnosApi.create(values);
 
       closeModals();
 
       setNotice({
         type: 'success',
-        text: 'Alumno agregado. La API respondió correctamente.',
+        text: 'Alumno agregado. Se enviaron sus credenciales a su correo de contacto.',
       });
 
       updateParams({ page: 1 });
+      reload();
     } catch (err) {
       setActionError(
         err.message || 'No se pudo agregar al alumno.'
@@ -248,12 +205,13 @@ export default function UsersPage() {
     setActionError('');
 
     try {
-      await editUser(
-        pendingEdit.user,
+      await alumnosApi.update(
+        pendingEdit.user.id,
         pendingEdit.values
       );
 
       closeModals();
+      reload();
 
       setNotice({
         type: 'success',
@@ -274,9 +232,10 @@ export default function UsersPage() {
     setActionError('');
 
     try {
-      await removeUser(userToDelete);
+      await alumnosApi.remove(userToDelete.id);
 
       closeModals();
+      reload();
 
       setNotice({
         type: 'success',
@@ -304,6 +263,8 @@ export default function UsersPage() {
     });
   };
 
+  // (los alumnos nuevos se dan de alta desde Inscripciones)
+  // eslint-disable-next-line no-unused-vars
   const openCreate = () => {
     setActionError('');
     setFormModal({ mode: 'create' });
@@ -326,21 +287,20 @@ export default function UsersPage() {
           <h2 className="card__title">
             Lista de alumnos
           </h2>
-
         </header>
 
-        {loading && (
+        {loading && !data && (
           <LoadingState message="Cargando alumnos..." />
         )}
 
-        {!loading && error && (
+        {error && (
           <ErrorState
             message={error}
             onRetry={reload}
           />
         )}
 
-        {!loading && !error && (
+        {data && !error && (
           <>
             <UsersFilters
               search={search}
@@ -348,6 +308,8 @@ export default function UsersPage() {
               semester={semester}
               status={status}
               ingreso={ingreso}
+              careers={careers}
+              ingresos={ingresos}
               onSearchChange={handleSearchChange}
               onFilterChange={handleFilterChange}
               onClear={handleClearFilters}
@@ -363,7 +325,7 @@ export default function UsersPage() {
               page={page}
               totalPages={totalPages}
               limit={limit}
-              totalItems={filteredUsers.length}
+              totalItems={totalItems}
               onPageChange={handlePageChange}
               onLimitChange={handleLimitChange}
             />
@@ -390,6 +352,8 @@ export default function UsersPage() {
         >
           <UserForm
             key={formModal.user?.id ?? 'new'}
+            careers={careers}
+            mode={formModal.mode}
             initialValues={
               formModal.mode === 'create'
                 ? EMPTY_USER_FORM

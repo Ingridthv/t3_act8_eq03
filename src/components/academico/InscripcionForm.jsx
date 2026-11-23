@@ -1,10 +1,8 @@
-import { useState } from 'react';
-import { Mail } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Alert from '../ui/Alert.jsx';
 import { SelectField, TextField } from '../ui/TextField.jsx';
-import { PERIODO_ACTUAL } from '../../utils/academico.js';
 import { validateField } from '../../utils/entities.js';
-import { CAREERS, SEMESTERS } from '../../utils/users.js';
+import { SEMESTERS } from '../../utils/users.js';
 
 const today = () => {
   const d = new Date();
@@ -12,27 +10,29 @@ const today = () => {
 };
 
 // Alta de alumno + inscripción en un solo paso (o inscripción de un alumno ya registrado).
-export default function InscripcionForm({ options, users, submitting, serverError, onSubmit, onCancel }) {
+export default function InscripcionForm({ options, submitting, serverError, onSubmit, onCancel }) {
   const [modo, setModo] = useState('nuevo');
   const [values, setValues] = useState({
-    matricula: '', nombre: '', carrera: '', semestre: '1', alumnoId: '', periodo: PERIODO_ACTUAL, fecha: today(),
+    nombre: '', contactEmail: '', phone: '', carrera: '', semestre: '1', alumnoId: '',
+    // el periodo actual viene marcado desde la base de datos
+    periodo: (options.periodos ?? []).find((o) => o.actual)?.value ?? '', fecha: today(),
   });
   const [errors, setErrors] = useState({});
 
+  // si las opciones llegan después de abrir el formulario, se preselecciona el periodo actual
+  useEffect(() => {
+    const actual = (options.periodos ?? []).find((o) => o.actual)?.value;
+    if (actual) setValues((v) => (v.periodo ? v : { ...v, periodo: actual }));
+  }, [options.periodos]);
+
   const fields = {
-    matricula: {
-      name: 'matricula', label: 'Matrícula',
-      rules: {
-        required: true, pattern: /^\d{8}$/, patternMsg: 'La matrícula debe tener 8 dígitos.',
-        custom: (v) => (users.some((u) => String(u.enrollment) === v) ? 'Ya existe un alumno con esa matrícula.' : ''),
-      },
-      requiredMsg: 'Escribe la matrícula.',
-    },
     nombre: {
       name: 'nombre', label: 'Nombre completo',
       rules: { required: true, minLen: 5, maxLen: 80, custom: (v) => (v.split(/\s+/).length < 2 ? 'Escribe el nombre y los apellidos.' : '') },
       requiredMsg: 'Escribe el nombre completo.',
     },
+    contactEmail: { name: 'contactEmail', label: 'Correo de contacto (recibe las credenciales)', rules: { required: true, email: true }, requiredMsg: 'Escribe el correo de contacto.' },
+    phone: { name: 'phone', label: 'Celular (opcional, para SMS y WhatsApp)', rules: { pattern: /^\+?\d{10,14}$/, patternMsg: 'Escribe de 10 a 14 dígitos, por ejemplo +525512345678.' } },
     carrera: { name: 'carrera', label: 'Carrera', type: 'select', rules: { required: true }, requiredMsg: 'Selecciona una carrera.' },
     semestre: { name: 'semestre', label: 'Semestre', type: 'select', rules: { required: true }, requiredMsg: 'Selecciona el semestre.' },
     alumnoId: { name: 'alumnoId', label: 'Alumno', type: 'select', rules: { required: true }, requiredMsg: 'Selecciona un alumno.' },
@@ -40,12 +40,12 @@ export default function InscripcionForm({ options, users, submitting, serverErro
     fecha: { name: 'fecha', label: 'Fecha de inscripción', type: 'date', rules: { required: true }, requiredMsg: 'Selecciona la fecha.' },
   };
   const active = (modo === 'nuevo'
-    ? ['matricula', 'nombre', 'carrera', 'semestre', 'periodo', 'fecha']
+    ? ['nombre', 'contactEmail', 'phone', 'carrera', 'semestre', 'periodo', 'fecha']
     : ['alumnoId', 'periodo', 'fecha']).map((n) => fields[n]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setValues((v) => ({ ...v, [name]: name === 'matricula' ? value.replace(/\D/g, '').slice(0, 8) : value }));
+    setValues((v) => ({ ...v, [name]: value }));
     setErrors((cur) => ({ ...cur, [name]: '' }));
   };
   const handleBlur = (e) => {
@@ -85,14 +85,13 @@ export default function InscripcionForm({ options, users, submitting, serverErro
 
       {modo === 'nuevo' ? (
         <>
-          <TextField {...common('matricula')} placeholder="Ej. 25160001" inputMode="numeric" autoComplete="off" />
           <TextField {...common('nombre')} placeholder="Ej. Ana Martínez López" autoComplete="off" />
-          <TextField label="Correo institucional" icon={Mail} readOnly value={`${values.matricula || '________'}@itoaxaca.edu.mx`}
-            hint="Se genera con la matrícula y es el usuario con el que entra al sistema." />
+          <TextField {...common('contactEmail')} type="email" placeholder="correo.personal@gmail.com" autoComplete="off" />
+          <TextField {...common('phone')} placeholder="Ej. +525512345678" autoComplete="off" />
           <div className="form__row">
             <SelectField {...common('carrera')}>
               <option value="">Selecciona una carrera</option>
-              {CAREERS.map((c) => <option key={c} value={c}>{c}</option>)}
+              {(options.carreras ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </SelectField>
             <SelectField {...common('semestre')}>
               {SEMESTERS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -112,7 +111,7 @@ export default function InscripcionForm({ options, users, submitting, serverErro
       </div>
 
       {modo === 'nuevo' && (
-        <Alert type="info">Al guardar, el sistema crea la cuenta del alumno y le envía su usuario y una contraseña temporal por correo.</Alert>
+        <Alert type="info">Al guardar, el sistema le asigna su matrícula, crea su cuenta (usuario: matrícula@itoaxaca.edu.mx) y envía su usuario y contraseña temporal al correo de contacto. Después de inscribirlo, asígnale sus materias con el botón de materias (libro) de su fila.</Alert>
       )}
       {serverError && <Alert type="error">{serverError}</Alert>}
 

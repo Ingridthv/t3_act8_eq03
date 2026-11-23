@@ -2,12 +2,14 @@ import { useRef, useState } from 'react';
 import Alert from '../ui/Alert.jsx';
 import { SelectField, TextField } from '../ui/TextField.jsx';
 import { lookupPostalCode, validateEmailRemote } from '../../services/validation.js';
-import { CAREERS, SEMESTERS, STATUSES, validateUserForm } from '../../utils/users.js';
+import { SEMESTERS, STATUSES, validateUserForm } from '../../utils/users.js';
 
 const NO_HINT = { message: '', tone: 'info' };
 
 export default function UserForm({
   initialValues,
+  careers = [],
+  mode = 'create',
   submitLabel,
   submitting = false,
   serverError = '',
@@ -110,27 +112,31 @@ export default function UserForm({
           onChange={handleChange} onBlur={handleBlur} placeholder="Ej. Martínez López" autoComplete="off" />
       </div>
 
-      <TextField label="Correo electrónico" name="email" type="email" value={values.email}
+      <TextField label="Correo institucional (usuario de acceso)" name="email" type="email" value={values.email}
         error={errors.email} hint={emailHint.message} hintTone={emailHint.tone}
         onChange={handleChange} onBlur={handleBlur} placeholder="nombre@correo.com" autoComplete="off" />
 
+      <TextField label="Correo de contacto (recibe las credenciales)" name="contactEmail" type="email"
+        value={values.contactEmail} error={errors.contactEmail}
+        onChange={handleChange} onBlur={handleBlur} placeholder="correo.personal@gmail.com" autoComplete="off" />
+
+      <TextField label="Celular (opcional, para SMS y WhatsApp)" name="phone" value={values.phone} error={errors.phone}
+        onChange={handleChange} onBlur={handleBlur} placeholder="Ej. +525512345678" autoComplete="off" />
+
       <div className="form__row">
-        <SelectField label="Carrera" name="career" value={values.career} onChange={handleChange}>
-          {CAREERS.map((name) => (<option key={name} value={name}>{name}</option>))}
+        <SelectField label="Carrera" name="career" value={values.career} error={errors.career}
+          onChange={handleChange} onBlur={handleBlur}>
+          <option value="">Selecciona una carrera</option>
+          {careers.map((c) => (<option key={c.value} value={c.value}>{c.label}</option>))}
         </SelectField>
         <SelectField label="Semestre" name="semester" value={values.semester} onChange={handleChange}>
           {SEMESTERS.map((number) => (<option key={number} value={number}>{number}</option>))}
         </SelectField>
       </div>
 
-      <div className="form__row">
-        <TextField label="Promedio" name="average" type="number" min="0" max="10" step="0.1"
-          value={values.average} error={errors.average} onChange={handleChange} onBlur={handleBlur}
-          placeholder="Ej. 8.5" />
-        <SelectField label="Estatus" name="status" value={values.status} onChange={handleChange}>
-          {STATUSES.map((name) => (<option key={name} value={name}>{name}</option>))}
-        </SelectField>
-      </div>
+      <SelectField label="Estatus" name="status" value={values.status} onChange={handleChange}>
+        {STATUSES.map((name) => (<option key={name} value={name}>{name}</option>))}
+      </SelectField>
 
       <div className="form__row">
         <TextField label="Código postal (opcional)" name="postalCode" inputMode="numeric" maxLength={5}
@@ -140,6 +146,9 @@ export default function UserForm({
           placeholder="Se llena con el código postal" autoComplete="off" />
       </div>
 
+      {mode === 'create' && (
+        <Alert type="info">Al guardar se crea su cuenta y se envían su usuario y contraseña temporal al correo de contacto. La matrícula la genera el sistema.</Alert>
+      )}
       {serverError && <Alert type="error">{serverError}</Alert>}
 
       <div className="form__actions">
