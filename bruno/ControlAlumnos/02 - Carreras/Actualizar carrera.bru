@@ -1,0 +1,31 @@
+meta {
+  name: Actualizar carrera
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/admin/carreras/1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenAdmin}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "clave": "ISC",
+    "nombre": "Ingenieria en Sistemas Computacionales",
+    "duracionSemestres": 9,
+    "activa": true
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

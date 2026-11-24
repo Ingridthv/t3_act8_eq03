@@ -1,0 +1,22 @@
+meta {
+  name: Consultar periodos
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/estudiante/periodos
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenEstudiante}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

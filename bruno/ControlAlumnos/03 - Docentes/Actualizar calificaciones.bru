@@ -1,0 +1,30 @@
+meta {
+  name: Actualizar calificaciones
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/api/docente/calificaciones/1b693bae-e84f-5570-9513-dc0d1a28a77e
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "parcial": 8.5,
+    "final": 9.0
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

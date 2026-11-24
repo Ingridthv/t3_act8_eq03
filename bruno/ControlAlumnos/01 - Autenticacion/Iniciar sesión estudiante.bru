@@ -1,0 +1,35 @@
+meta {
+  name: Iniciar sesión estudiante
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "correo": "20168978@escuela.edu.mx",
+    "password": "Alumno2026!"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  
+  if (body.token) {
+    bru.setVar("tokenEstudiante", body.token);
+    console.log("token estudiante guardado:", !!bru.getVar("tokenEstudiante"));
+  } else {
+    console.log("no se recibiÃ³ el token");
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

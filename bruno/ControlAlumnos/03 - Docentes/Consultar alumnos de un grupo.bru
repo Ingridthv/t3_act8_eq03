@@ -1,0 +1,22 @@
+meta {
+  name: Consultar alumnos de un grupo
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/docente/grupos/b04abe74-d258-53a4-b60b-0eb5926860c0/alumnos
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

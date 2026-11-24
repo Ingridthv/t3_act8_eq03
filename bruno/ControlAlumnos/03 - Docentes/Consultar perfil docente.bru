@@ -1,0 +1,22 @@
+meta {
+  name: Consultar perfil docente
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/docente/perfil
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

@@ -1,0 +1,21 @@
+meta {
+  name: Eliminar carrera
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/admin/carreras/2
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenAdmin}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

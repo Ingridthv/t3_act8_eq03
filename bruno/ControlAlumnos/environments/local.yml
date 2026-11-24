@@ -1,0 +1,10 @@
+name: local
+variables:
+  - name: baseUrl
+    value: http://localhost:8089
+    enabled: true
+    secret: false
+  - name: tokenDocente
+    value: ""
+    enabled: true
+    secret: true

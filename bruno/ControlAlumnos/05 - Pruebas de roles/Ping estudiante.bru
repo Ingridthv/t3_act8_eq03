@@ -1,0 +1,22 @@
+meta {
+  name: Ping estudiante
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/estudiante/ping
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenEstudiante}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

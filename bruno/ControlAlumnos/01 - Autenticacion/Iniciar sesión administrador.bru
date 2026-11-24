@@ -1,0 +1,35 @@
+meta {
+  name: Iniciar sesión administrador
+  type: http
+  seq: 6
+}
+
+post {
+  url: https://t3act8eq03.tech/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "correo": "admin@controlalumnos.edu.mx",
+    "password": "Admin2027!"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  
+  if (body.token) {
+    bru.setVar("tokenAdmin", body.token);
+    console.log("token administrador guardado:", !!bru.getVar("tokenAdmin"));
+  } else {
+    console.log("no se recibiÃ³ el token");
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

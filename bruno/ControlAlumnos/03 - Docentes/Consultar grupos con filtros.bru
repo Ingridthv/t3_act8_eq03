@@ -1,0 +1,30 @@
+meta {
+  name: Consultar grupos con filtros
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/docente/grupos/pagina?q=&periodo=&carrera=&page=0&size=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  q: 
+  periodo: 
+  carrera: 
+  page: 0
+  size: 10
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

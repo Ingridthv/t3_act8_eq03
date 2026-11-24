@@ -1,0 +1,22 @@
+meta {
+  name: Consultar filtros de grupos
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/docente/grupos/filtros
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

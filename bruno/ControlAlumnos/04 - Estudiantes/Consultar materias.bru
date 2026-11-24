@@ -1,0 +1,30 @@
+meta {
+  name: Consultar materias
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/estudiante/materias?q=&periodo=&estatus=&page=0&size=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  q: 
+  periodo: 
+  estatus: 
+  page: 0
+  size: 10
+}
+
+headers {
+  Authorization: Bearer {{tokenEstudiante}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+
