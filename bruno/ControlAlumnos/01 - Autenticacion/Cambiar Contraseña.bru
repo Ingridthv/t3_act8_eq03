@@ -1,0 +1,29 @@
+meta {
+  name: Cambiar Contraseña
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/cambiar-password
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "actual": "Docente2026!",
+    "nueva": "Docente2027!"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

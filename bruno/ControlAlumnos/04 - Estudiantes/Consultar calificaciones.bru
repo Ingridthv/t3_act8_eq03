@@ -1,0 +1,30 @@
+meta {
+  name: Consultar calificaciones
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/estudiante/calificaciones?periodo=&estatus=&orden=desc&page=0&size=10
+  body: none
+  auth: bearer
+}
+
+params:query {
+  periodo: 
+  estatus: 
+  orden: desc
+  page: 0
+  size: 10
+}
+
+auth:bearer {
+  token: {{tokenEstudiante}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

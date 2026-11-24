@@ -1,0 +1,27 @@
+meta {
+  name: Consultar carreras
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/admin/carreras?page=0&size=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 0
+  size: 10
+}
+
+headers {
+  Authorization: Bearer {{tokenAdmin}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

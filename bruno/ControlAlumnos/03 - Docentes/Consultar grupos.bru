@@ -1,0 +1,22 @@
+meta {
+  name: Consultar grupos
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/docente/grupos
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{tokenDocente}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+

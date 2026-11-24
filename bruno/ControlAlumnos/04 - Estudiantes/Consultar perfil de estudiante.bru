@@ -1,0 +1,22 @@
+meta {
+  name: Consultar perfil de estudiante
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/estudiante/perfil
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: 	Bearer {{tokenEstudiante}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+
