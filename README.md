@@ -140,11 +140,23 @@ Para usarla: abrir Bruno, *Open Collection*, elegir la carpeta `bruno/ControlAlu
 
 Inicio de sesión de los tres roles contra la VPS (respuesta `200 OK`; el token se oculta en las capturas):
 
+### Login Docente
 ![Login del docente en Bruno](docs/bruno-login-docente.png)
 
+### Prueba docente
+![Login de prueba docente en bruno](docs/prueba_docen.png)
+
+### Login Estudiante
 ![Login del estudiante en Bruno](docs/bruno-login-estudiante.png)
 
+### Prueba Estuduante
+![Login de prueba estudiante en bruno](docs/prueba_estud.png)
+
+### Login Administrador
 ![Login del administrador en Bruno](docs/bruno-login-administrador.png)
+
+### Prueba Administrador
+![Login de prueba administrador en bruno](docs/prueba_admin.png)
 
 ## Correo con Postfix (SPF y DKIM)
 
